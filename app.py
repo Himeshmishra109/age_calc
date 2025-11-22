@@ -6,8 +6,88 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
 import json
+import mysql.connector
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
+
+# Database configuration
+DB_CONFIG = {
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', ''),
+    'database': os.getenv('DB_NAME', 'calcmaster'),
+    'port': int(os.getenv('DB_PORT', 3306))
+}
+
+def get_db_connection():
+    """Get database connection"""
+    try:
+        connection = mysql.connector.connect(**DB_CONFIG)
+        return connection
+    except mysql.connector.Error as e:
+        print(f"Database connection error: {e}")
+        return None
+    except Exception as e:
+        print(f"Database connection failed: {e}")
+        return None
+
+def init_database():
+    """Initialize database tables"""
+    try:
+        connection = get_db_connection()
+        if not connection:
+            return False
+        
+        cursor = connection.cursor()
+        
+        # Create feedback table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255),
+                subject VARCHAR(500) NOT NULL,
+                message TEXT NOT NULL,
+                rating INT,
+                feedback_type VARCHAR(100),
+                wants_updates BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Create contact table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS contact (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255),
+                subject VARCHAR(500) NOT NULL,
+                message TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Database tables initialized successfully")
+        return True
+        
+    except mysql.connector.Error as e:
+        print(f"Database initialization error: {e}")
+        return False
+
+# Initialize database on startup (if available)
+try:
+    init_database()
+except Exception as e:
+    print(f"Database initialization failed: {e}")
+    print("Running in fallback mode - feedback will be logged to console")
 
 # Define all 100 calculators with their metadata
 CALCULATORS = [
@@ -1658,25 +1738,87 @@ def calculate_route():
     result = calculate(calc_id, data.get("data", {}))
     return jsonify({"result": result})
 
-def save_feedback(subject, body, sender_name="Anonymous User"):
-    """Save feedback to a simple text file"""
+def save_feedback_to_db(name, email, subject, message, rating=None, feedback_type=None, wants_updates=False):
+    """Save feedback to MySQL database or fallback to console logging"""
     try:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        connection = get_db_connection()
+        if not connection:
+            # Fallback to console logging for local development
+            print(f"\n{'='*60}")
+            print(f"📧 FEEDBACK (DB unavailable - logging to console)")
+            print(f"FROM: {name} ({email})")
+            print(f"SUBJECT: {subject}")
+            print(f"RATING: {rating}/5 stars")
+            print(f"TYPE: {feedback_type}")
+            print(f"WANTS UPDATES: {wants_updates}")
+            print(f"MESSAGE: {message}")
+            print(f"{'='*60}")
+            return True
         
-        # Save to a simple feedback file
-        with open("feedback.txt", "a", encoding="utf-8") as f:
-            f.write(f"\n{'='*60}\n")
-            f.write(f"DATE: {timestamp}\n")
-            f.write(f"FROM: {sender_name}\n")
-            f.write(f"SUBJECT: {subject}\n")
-            f.write(f"MESSAGE:\n{body}\n")
-            f.write(f"{'='*60}\n")
+        cursor = connection.cursor()
         
-        print(f"Feedback saved: {subject} from {sender_name}")
+        query = """
+            INSERT INTO feedback (name, email, subject, message, rating, feedback_type, wants_updates)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        
+        values = (name, email, subject, message, rating, feedback_type, wants_updates)
+        cursor.execute(query, values)
+        connection.commit()
+        
+        cursor.close()
+        connection.close()
+        
+        print(f"Feedback saved to database: {subject} from {name}")
         return True
         
+    except mysql.connector.Error as e:
+        print(f"Database error: {e}")
+        # Fallback to console logging
+        print(f"📧 FEEDBACK (DB error - logging to console): {subject} from {name}")
+        return True
     except Exception as e:
         print(f"Failed to save feedback: {str(e)}")
+        return False
+
+def save_contact_to_db(name, email, subject, message):
+    """Save contact message to MySQL database or fallback to console logging"""
+    try:
+        connection = get_db_connection()
+        if not connection:
+            # Fallback to console logging for local development
+            print(f"\n{'='*60}")
+            print(f"📞 CONTACT (DB unavailable - logging to console)")
+            print(f"FROM: {name} ({email})")
+            print(f"SUBJECT: {subject}")
+            print(f"MESSAGE: {message}")
+            print(f"{'='*60}")
+            return True
+        
+        cursor = connection.cursor()
+        
+        query = """
+            INSERT INTO contact (name, email, subject, message)
+            VALUES (%s, %s, %s, %s)
+        """
+        
+        values = (name, email, subject, message)
+        cursor.execute(query, values)
+        connection.commit()
+        
+        cursor.close()
+        connection.close()
+        
+        print(f"Contact message saved to database: {subject} from {name}")
+        return True
+        
+    except mysql.connector.Error as e:
+        print(f"Database error: {e}")
+        # Fallback to console logging
+        print(f"📞 CONTACT (DB error - logging to console): {subject} from {name}")
+        return True
+    except Exception as e:
+        print(f"Failed to save contact: {str(e)}")
         return False
     
     # If Gmail fails, return False (no file fallback)
@@ -1718,9 +1860,8 @@ def contact_form():
         </html>
         """
         
-        # Save feedback
-        feedback_text = f"Name: {name}\nEmail: {email}\nSubject: {subject}\nMessage: {message}"
-        success = save_feedback(f"Contact: {subject}", feedback_text, name)
+        # Save contact to database
+        success = save_contact_to_db(name, email, subject, message)
         
         if success:
             return jsonify({"success": True, "message": "Message received! Thank you for contacting us."})
@@ -1750,9 +1891,8 @@ Type: {feedback_type}
 Wants Updates: {"Yes" if updates else "No"}
 Message: {message}"""
         
-        # Save feedback
-        feedback_subject = f"Feedback: {feedback_type} ({rating}/5 stars)"
-        success = save_feedback(feedback_subject, feedback_text, name)
+        # Save feedback to database
+        success = save_feedback_to_db(name, email, f"Feedback: {feedback_type}", message, rating, feedback_type, updates)
         
         if success:
             return jsonify({"success": True, "message": "Thank you for your feedback! We appreciate your input."})
@@ -1764,60 +1904,141 @@ Message: {message}"""
 
 @app.route("/feedback-view")
 def view_feedback():
-    """View all feedback submissions"""
+    """View all feedback submissions from database"""
     try:
-        with open("feedback.txt", "r", encoding="utf-8") as f:
-            feedback_content = f.read()
+        connection = get_db_connection()
+        if not connection:
+            return "Database connection failed"
         
-        if not feedback_content.strip():
-            feedback_content = "No feedback received yet."
+        cursor = connection.cursor(dictionary=True)
         
-        # Convert to HTML with basic formatting
-        html_content = feedback_content.replace('\n', '<br>').replace('=', '')
+        # Get all feedback
+        cursor.execute("""
+            SELECT * FROM feedback 
+            ORDER BY created_at DESC
+        """)
+        feedback_data = cursor.fetchall()
+        
+        # Get all contact messages
+        cursor.execute("""
+            SELECT *, 'contact' as type FROM contact 
+            ORDER BY created_at DESC
+        """)
+        contact_data = cursor.fetchall()
+        
+        cursor.close()
+        connection.close()
+        
+        # Combine and sort by date
+        all_messages = []
+        
+        for item in feedback_data:
+            stars = "★" * (item['rating'] or 0) + "☆" * (5 - (item['rating'] or 0))
+            all_messages.append({
+                'type': 'feedback',
+                'name': item['name'],
+                'email': item['email'],
+                'subject': item['subject'],
+                'message': item['message'],
+                'rating': f"{stars} ({item['rating']}/5)" if item['rating'] else "No rating",
+                'feedback_type': item['feedback_type'],
+                'wants_updates': "Yes" if item['wants_updates'] else "No",
+                'created_at': item['created_at']
+            })
+        
+        for item in contact_data:
+            all_messages.append({
+                'type': 'contact',
+                'name': item['name'],
+                'email': item['email'],
+                'subject': item['subject'],
+                'message': item['message'],
+                'created_at': item['created_at']
+            })
+        
+        # Sort by date (newest first)
+        all_messages.sort(key=lambda x: x['created_at'], reverse=True)
+        
+        # Generate HTML
+        messages_html = ""
+        if not all_messages:
+            messages_html = "<p>No feedback or messages received yet.</p>"
+        else:
+            for msg in all_messages:
+                if msg['type'] == 'feedback':
+                    messages_html += f"""
+                    <div class="message feedback-msg">
+                        <h4>⭐ Feedback: {msg['feedback_type']}</h4>
+                        <p><strong>From:</strong> {msg['name']} ({msg['email']})</p>
+                        <p><strong>Rating:</strong> {msg['rating']}</p>
+                        <p><strong>Wants Updates:</strong> {msg['wants_updates']}</p>
+                        <p><strong>Message:</strong> {msg['message']}</p>
+                        <p><strong>Date:</strong> {msg['created_at']}</p>
+                    </div>
+                    """
+                else:
+                    messages_html += f"""
+                    <div class="message contact-msg">
+                        <h4>📞 Contact: {msg['subject']}</h4>
+                        <p><strong>From:</strong> {msg['name']} ({msg['email']})</p>
+                        <p><strong>Message:</strong> {msg['message']}</p>
+                        <p><strong>Date:</strong> {msg['created_at']}</p>
+                    </div>
+                    """
         
         return f"""
         <!DOCTYPE html>
         <html>
         <head>
-            <title>CalcMaster Pro - Feedback</title>
+            <title>CalcMaster Pro - Feedback Dashboard</title>
             <style>
                 body {{ font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }}
-                .container {{ max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                .container {{ max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
                 .header {{ text-align: center; color: #667eea; margin-bottom: 30px; }}
-                .feedback {{ background: #f8f9fa; padding: 15px; margin: 15px 0; border-left: 4px solid #667eea; border-radius: 5px; }}
+                .message {{ background: #f8f9fa; padding: 20px; margin: 15px 0; border-left: 4px solid #667eea; border-radius: 5px; }}
+                .feedback-msg {{ border-left-color: #28a745; }}
+                .contact-msg {{ border-left-color: #007bff; }}
                 .back-btn {{ display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; }}
                 .back-btn:hover {{ background: #5a6fd8; }}
+                .stats {{ display: flex; gap: 20px; margin-bottom: 30px; }}
+                .stat {{ background: #667eea; color: white; padding: 15px; border-radius: 8px; text-align: center; flex: 1; }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>📝 CalcMaster Pro Feedback</h1>
-                    <p>All user feedback and contact messages</p>
+                    <h1>📊 CalcMaster Pro Dashboard</h1>
+                    <p>Feedback and Contact Messages</p>
                 </div>
                 <a href="/" class="back-btn">← Back to Calculator</a>
-                <div class="feedback">
-                    {html_content}
+                
+                <div class="stats">
+                    <div class="stat">
+                        <h3>{len([m for m in all_messages if m['type'] == 'feedback'])}</h3>
+                        <p>Feedback Messages</p>
+                    </div>
+                    <div class="stat">
+                        <h3>{len([m for m in all_messages if m['type'] == 'contact'])}</h3>
+                        <p>Contact Messages</p>
+                    </div>
+                    <div class="stat">
+                        <h3>{len(all_messages)}</h3>
+                        <p>Total Messages</p>
+                    </div>
+                </div>
+                
+                <div class="messages">
+                    {messages_html}
                 </div>
             </div>
         </body>
         </html>
         """
         
-    except FileNotFoundError:
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head><title>CalcMaster Pro - Feedback</title></head>
-        <body style="font-family: Arial, sans-serif; margin: 40px; text-align: center;">
-            <h2>📝 No Feedback Yet</h2>
-            <p>No feedback has been received yet.</p>
-            <a href="/" style="color: #667eea;">← Back to Calculator</a>
-        </body>
-        </html>
-        """
+    except mysql.connector.Error as e:
+        return f"Database error: {str(e)}"
     except Exception as e:
-        return f"Error reading feedback: {str(e)}"
+        return f"Error loading feedback: {str(e)}"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
