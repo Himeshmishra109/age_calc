@@ -2045,48 +2045,6 @@
 
     // Initialize
     filterCalculators('', 'all');
-// Feedback popup JS
-document.getElementById("feedbackBtn").onclick = () => {
-    document.getElementById("feedbackPopup").style.display = "flex";
-};
-
-document.querySelector(".close-popup").onclick = () => {
-    document.getElementById("feedbackPopup").style.display = "none";
-};
-
-window.onclick = (e) => {
-    if (e.target.id === "feedbackPopup") {
-        document.getElementById("feedbackPopup").style.display = "none";
-    }
-};
 </script>
-<div id="feedbackPopup" class="feedback-popup">
-    <div class="popup-content">
-        <span class="close-popup">&times;</span>
-        <h2>Send Feedback</h2>
-
-        <form action="https://formsubmit.co/himeshmishra109@gmail.com" method="POST">
-            <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_subject" value="New Feedback">
-
-            <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="name" required>
-            </div>
-
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" required>
-            </div>
-
-            <div class="form-group">
-                <label>Message</label>
-                <textarea name="message" required></textarea>
-            </div>
-
-            <button type="submit" class="submit-button">Send</button>
-        </form>
-    </div>
-</div>
 </body>
 </html>
