@@ -4,7 +4,6 @@ import math
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import requests
 import json
 import mysql.connector
 import os
