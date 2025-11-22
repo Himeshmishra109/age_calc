@@ -2044,7 +2044,22 @@
     }
 
     // Initialize
-    filterCalculators('', 'all');</script>
+    filterCalculators('', 'all');
+// Feedback popup JS
+document.getElementById("feedbackBtn").onclick = () => {
+    document.getElementById("feedbackPopup").style.display = "flex";
+};
+
+document.querySelector(".close-popup").onclick = () => {
+    document.getElementById("feedbackPopup").style.display = "none";
+};
+
+window.onclick = (e) => {
+    if (e.target.id === "feedbackPopup") {
+        document.getElementById("feedbackPopup").style.display = "none";
+    }
+};
+</script>
 <div id="feedbackPopup" class="feedback-popup">
     <div class="popup-content">
         <span class="close-popup">&times;</span>
