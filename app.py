@@ -1,6 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for,jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from datetime import datetime, timedelta
 import math
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import requests
+import json
 
 app = Flask(__name__)
 
@@ -118,6 +123,18 @@ CALCULATORS = [
     {'id': 'work_days', 'name': 'Work Days', 'category': 'Date & Time', 'description': 'Calculate work days between dates'},
 ]
 
+def get_float_value(data, key, default=None, required=True):
+    """Helper function to safely get and validate float values"""
+    value = data.get(key)
+    if value is None or value == "":
+        if required:
+            return None, f"Error: Please provide {key.replace('_', ' ')}"
+        return default, None
+    try:
+        return float(value), None
+    except (ValueError, TypeError):
+        return None, f"Error: {key.replace('_', ' ')} must be a valid number"
+
 def calculate(calc_id, data):
     """Perform calculations based on calculator ID"""
     try:
@@ -150,83 +167,143 @@ def calculate(calc_id, data):
             return f"Days between: {days} days"
         
         elif calc_id == "bmi":
-            weight = float(data.get("weight"))
-            height = float(data.get("height")) / 100
+            weight, error = get_float_value(data, "weight")
+            if error: return error
+            height, error = get_float_value(data, "height")
+            if error: return error
+            if height <= 0 or weight <= 0:
+                return "Error: Weight and height must be positive numbers"
+            height = height / 100  # convert cm to meters
             bmi = weight / (height ** 2)
             category = "Underweight" if bmi < 18.5 else "Normal" if bmi < 25 else "Overweight" if bmi < 30 else "Obese"
             return f"BMI: {bmi:.2f} ({category})"
         
         elif calc_id == "simple_interest":
-            principal = float(data.get("principal"))
-            rate = float(data.get("rate"))
-            time = float(data.get("time"))
+            principal, error = get_float_value(data, "principal")
+            if error: return error
+            rate, error = get_float_value(data, "rate")
+            if error: return error
+            time, error = get_float_value(data, "time")
+            if error: return error
+            if principal <= 0 or rate < 0 or time <= 0:
+                return "Error: Principal and time must be positive, rate cannot be negative"
             interest = (principal * rate * time) / 100
             return f"Interest: ${interest:,.2f}, Total: ${principal + interest:,.2f}"
         
         elif calc_id == "compound_interest":
-            principal = float(data.get("principal"))
-            rate = float(data.get("rate")) / 100
-            time = float(data.get("time"))
-            n = float(data.get("compounds", 12))
+            principal, error = get_float_value(data, "principal")
+            if error: return error
+            rate, error = get_float_value(data, "rate")
+            if error: return error
+            time, error = get_float_value(data, "time")
+            if error: return error
+            n, error = get_float_value(data, "compounds", 12, False)
+            if error: return error
+            if principal <= 0 or rate < 0 or time <= 0 or n <= 0:
+                return "Error: All values must be positive"
+            rate = rate / 100
             amount = principal * (1 + rate/n) ** (n * time)
             return f"Amount: ${amount:,.2f}, Interest: ${amount - principal:,.2f}"
         
         elif calc_id == "loan_payment":
-            principal = float(data.get("principal"))
-            rate = float(data.get("rate")) / 100 / 12
-            months = float(data.get("months"))
-            payment = principal * (rate * (1 + rate)**months) / ((1 + rate)**months - 1)
+            principal, error = get_float_value(data, "principal")
+            if error: return error
+            rate, error = get_float_value(data, "rate")
+            if error: return error
+            months, error = get_float_value(data, "months")
+            if error: return error
+            if principal <= 0 or rate < 0 or months <= 0:
+                return "Error: Principal and months must be positive, rate cannot be negative"
+            rate = rate / 100 / 12
+            if rate == 0:
+                payment = principal / months
+            else:
+                payment = principal * (rate * (1 + rate)**months) / ((1 + rate)**months - 1)
             return f"Monthly Payment: ${payment:,.2f}"
         
         elif calc_id == "percentage":
-            value = float(data.get("value"))
-            percent = float(data.get("percent"))
+            value, error = get_float_value(data, "value")
+            if error: return error
+            percent, error = get_float_value(data, "percent")
+            if error: return error
             result = (value * percent) / 100
             return f"{percent}% of {value} = {result}"
         
         elif calc_id == "area_circle":
-            radius = float(data.get("radius"))
+            radius, error = get_float_value(data, "radius")
+            if error: return error
+            if radius <= 0:
+                return "Error: Radius must be positive"
             area = math.pi * radius ** 2
             return f"Area: {area:.2f} square units"
         
         elif calc_id == "area_rectangle":
-            length = float(data.get("length"))
-            width = float(data.get("width"))
+            length, error = get_float_value(data, "length")
+            if error: return error
+            width, error = get_float_value(data, "width")
+            if error: return error
+            if length <= 0 or width <= 0:
+                return "Error: Length and width must be positive"
             area = length * width
             return f"Area: {area:.2f} square units"
         
         elif calc_id == "area_triangle":
-            base = float(data.get("base"))
-            height = float(data.get("height"))
+            base, error = get_float_value(data, "base")
+            if error: return error
+            height, error = get_float_value(data, "height")
+            if error: return error
+            if base <= 0 or height <= 0:
+                return "Error: Base and height must be positive"
             area = 0.5 * base * height
             return f"Area: {area:.2f} square units"
         
         elif calc_id == "volume_sphere":
-            radius = float(data.get("radius"))
+            radius, error = get_float_value(data, "radius")
+            if error: return error
+            if radius <= 0:
+                return "Error: Radius must be positive"
             volume = (4/3) * math.pi * radius ** 3
             return f"Volume: {volume:.2f} cubic units"
         
         elif calc_id == "pythagorean":
-            a = data.get("a")
-            b = data.get("b")
-            c = data.get("c")
-            if not c:
-                a, b = float(a), float(b)
-                c = math.sqrt(a**2 + b**2)
-                return f"Hypotenuse (c): {c:.2f}"
-            elif not a:
-                b, c = float(b), float(c)
-                a = math.sqrt(c**2 - b**2)
-                return f"Side (a): {a:.2f}"
-            else:
-                a, c = float(a), float(c)
-                b = math.sqrt(c**2 - a**2)
-                return f"Side (b): {b:.2f}"
+            a_str = data.get("a")
+            b_str = data.get("b")
+            c_str = data.get("c")
+            
+            # Count how many values are provided
+            provided = sum(1 for x in [a_str, b_str, c_str] if x and x.strip())
+            if provided != 2:
+                return "Error: Please provide exactly 2 values to calculate the third"
+            
+            try:
+                if not c_str or not c_str.strip():
+                    a, b = float(a_str), float(b_str)
+                    if a <= 0 or b <= 0:
+                        return "Error: All sides must be positive"
+                    c = math.sqrt(a**2 + b**2)
+                    return f"Hypotenuse (c): {c:.2f}"
+                elif not a_str or not a_str.strip():
+                    b, c = float(b_str), float(c_str)
+                    if b <= 0 or c <= 0 or c <= b:
+                        return "Error: All sides must be positive and hypotenuse must be largest"
+                    a = math.sqrt(c**2 - b**2)
+                    return f"Side (a): {a:.2f}"
+                else:
+                    a, c = float(a_str), float(c_str)
+                    if a <= 0 or c <= 0 or c <= a:
+                        return "Error: All sides must be positive and hypotenuse must be largest"
+                    b = math.sqrt(c**2 - a**2)
+                    return f"Side (b): {b:.2f}"
+            except ValueError:
+                return "Error: Please provide valid numbers"
         
         elif calc_id == "unit_temperature":
-            temp = float(data.get("temp"))
+            temp, error = get_float_value(data, "temp")
+            if error: return error
             from_unit = data.get("from")
             to_unit = data.get("to")
+            if not from_unit or not to_unit:
+                return "Error: Please select both temperature units"
             if from_unit == "celsius" and to_unit == "fahrenheit":
                 result = (temp * 9/5) + 32
             elif from_unit == "fahrenheit" and to_unit == "celsius":
@@ -240,23 +317,38 @@ def calculate(calc_id, data):
             return f"{temp}° {from_unit} = {result:.2f}° {to_unit}"
         
         elif calc_id == "tip_calculator":
-            bill = float(data.get("bill"))
-            tip_percent = float(data.get("tip"))
+            bill, error = get_float_value(data, "bill")
+            if error: return error
+            tip_percent, error = get_float_value(data, "tip")
+            if error: return error
+            if bill <= 0:
+                return "Error: Bill amount must be positive"
             tip = bill * (tip_percent / 100)
             total = bill + tip
             return f"Tip: ${tip:.2f}, Total: ${total:.2f}"
         
         elif calc_id == "discount":
-            original = float(data.get("original"))
-            discount = float(data.get("discount"))
-            final = original * (1 - discount / 100)
-            saved = original - final
+            price, error = get_float_value(data, "price")
+            if error: return error
+            discount, error = get_float_value(data, "discount")
+            if error: return error
+            if price <= 0:
+                return "Error: Original price must be positive"
+            if discount < 0 or discount > 100:
+                return "Error: Discount must be between 0 and 100 percent"
+            final = price * (1 - discount / 100)
+            saved = price - final
             return f"Final Price: ${final:.2f}, Saved: ${saved:.2f}"
         
         elif calc_id == "bmr":
-            weight = float(data.get("weight"))
-            height = float(data.get("height"))
-            age = float(data.get("age"))
+            weight, error = get_float_value(data, "weight")
+            if error: return error
+            height, error = get_float_value(data, "height")
+            if error: return error
+            age, error = get_float_value(data, "age")
+            if error: return error
+            if weight <= 0 or height <= 0 or age <= 0:
+                return "Error: Weight, height, and age must be positive"
             gender = data.get("gender")
             if gender == "male":
                 bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
@@ -265,48 +357,75 @@ def calculate(calc_id, data):
             return f"BMR: {bmr:.2f} calories/day"
         
         elif calc_id == "gpa":
-            grades = data.get("grades", "").split(",")
-            credits = data.get("credits", "").split(",")
-            grade_points = {"A": 4, "B": 3, "C": 2, "D": 1, "F": 0}
-            total_points = sum(grade_points.get(g.strip().upper(), 0) * float(c.strip()) for g, c in zip(grades, credits))
-            total_credits = sum(float(c.strip()) for c in credits)
-            gpa = total_points / total_credits if total_credits > 0 else 0
+            points, error = get_float_value(data, "points")
+            if error: return error
+            credits, error = get_float_value(data, "credits")
+            if error: return error
+            if credits <= 0:
+                return "Error: Credit hours must be positive"
+            gpa = points / credits
             return f"GPA: {gpa:.2f}"
         
         elif calc_id == "speed":
-            distance = float(data.get("distance"))
-            time = float(data.get("time"))
+            distance, error = get_float_value(data, "distance")
+            if error: return error
+            time, error = get_float_value(data, "time")
+            if error: return error
+            if distance <= 0 or time <= 0:
+                return "Error: Distance and time must be positive"
             speed = distance / time
             return f"Speed: {speed:.2f} units/time"
         
         elif calc_id == "force":
-            mass = float(data.get("mass"))
-            acceleration = float(data.get("acceleration"))
+            mass, error = get_float_value(data, "mass")
+            if error: return error
+            acceleration, error = get_float_value(data, "acceleration")
+            if error: return error
+            if mass <= 0:
+                return "Error: Mass must be positive"
             force = mass * acceleration
             return f"Force: {force:.2f} N"
         
         elif calc_id == "kinetic_energy":
-            mass = float(data.get("mass"))
-            velocity = float(data.get("velocity"))
+            mass, error = get_float_value(data, "mass")
+            if error: return error
+            velocity, error = get_float_value(data, "velocity")
+            if error: return error
+            if mass <= 0:
+                return "Error: Mass must be positive"
             ke = 0.5 * mass * velocity ** 2
             return f"Kinetic Energy: {ke:.2f} J"
         
         elif calc_id == "factorial":
-            n = int(float(data.get("n")))
+            n_val, error = get_float_value(data, "n")
+            if error: return error
+            n = int(n_val)
             if n < 0:
                 return "Error: Factorial not defined for negative numbers"
+            if n > 170:
+                return "Error: Number too large for factorial calculation"
             result = math.factorial(n)
             return f"{n}! = {result:,}"
         
         elif calc_id == "gcd":
-            a = int(float(data.get("a")))
-            b = int(float(data.get("b")))
+            a_val, error = get_float_value(data, "a")
+            if error: return error
+            b_val, error = get_float_value(data, "b")
+            if error: return error
+            a, b = int(a_val), int(b_val)
+            if a == 0 and b == 0:
+                return "Error: GCD is undefined when both numbers are zero"
             result = math.gcd(a, b)
             return f"GCD({a}, {b}) = {result}"
         
         elif calc_id == "lcm":
-            a = int(float(data.get("a")))
-            b = int(float(data.get("b")))
+            a_val, error = get_float_value(data, "a")
+            if error: return error
+            b_val, error = get_float_value(data, "b")
+            if error: return error
+            a, b = int(a_val), int(b_val)
+            if a == 0 or b == 0:
+                return "Error: LCM is undefined when either number is zero"
             result = abs(a * b) // math.gcd(a, b)
             return f"LCM({a}, {b}) = {result}"
         
@@ -316,8 +435,12 @@ def calculate(calc_id, data):
             return f"Mean: {mean:.2f}"
         
         elif calc_id == "fuel_efficiency":
-            distance = float(data.get("distance"))
-            fuel = float(data.get("fuel"))
+            distance, error = get_float_value(data, "distance")
+            if error: return error
+            fuel, error = get_float_value(data, "fuel")
+            if error: return error
+            if distance <= 0 or fuel <= 0:
+                return "Error: Distance and fuel must be positive"
             mpg = distance / fuel
             kpl = mpg * 0.425144
             return f"MPG: {mpg:.2f}, KPL: {kpl:.2f}"
@@ -401,14 +524,7 @@ def calculate(calc_id, data):
             target_max = max_hr * 0.85
             return f"Max HR: {max_hr:.0f} bpm, Target Zone: {target_min:.0f}-{target_max:.0f} bpm"
         
-        elif calc_id == "mortgage":
-            principal = float(data.get("principal"))
-            rate = float(data.get("rate")) / 100 / 12
-            months = float(data.get("months"))
-            payment = principal * (rate * (1 + rate)**months) / ((1 + rate)**months - 1)
-            total = payment * months
-            return f"Monthly Payment: ${payment:,.2f}, Total: ${total:,.2f}"
-        
+
         elif calc_id == "investment_return":
             principal = float(data.get("principal"))
             rate = float(data.get("rate")) / 100
@@ -571,13 +687,7 @@ def calculate(calc_id, data):
             percentage = (points / total) * 100
             return f"Grade: {percentage:.2f}%"
         
-        elif calc_id == "cgpa":
-            gpas = [float(x.strip()) for x in data.get("gpas", "").split(",")]
-            credits = [float(x.strip()) for x in data.get("credits", "").split(",")]
-            total_points = sum(g * c for g, c in zip(gpas, credits))
-            total_credits = sum(credits)
-            cgpa = total_points / total_credits if total_credits > 0 else 0
-            return f"CGPA: {cgpa:.2f}"
+
         
         elif calc_id == "test_score":
             correct = float(data.get("correct"))
@@ -946,9 +1056,25 @@ def calculate(calc_id, data):
             return f"Grade Needed on Final: {needed:.2f}%"
         
         elif calc_id == "cgpa":
-            grades = data.get("grades", "").split(",")
-            cgpa = sum(float(g.strip()) for g in grades) / len(grades)
-            return f"CGPA: {cgpa:.2f}"
+            grades_str = data.get("grades", "")
+            if not grades_str.strip():
+                return "Error: Please provide GPAs separated by commas"
+            
+            try:
+                grades = [float(g.strip()) for g in grades_str.split(",") if g.strip()]
+                if not grades:
+                    return "Error: Please provide at least one GPA"
+                
+                # Validate GPA range (typically 0.0 to 4.0)
+                for gpa in grades:
+                    if gpa < 0.0 or gpa > 4.0:
+                        return f"Error: GPA {gpa} is out of range (0.0 - 4.0)"
+                
+                cgpa = sum(grades) / len(grades)
+                return f"CGPA: {cgpa:.2f} (based on {len(grades)} courses)"
+                
+            except ValueError:
+                return "Error: Please enter valid numbers separated by commas (e.g., 3.5, 3.8, 4.0)"
         
         elif calc_id == "protein_needs":
             weight = float(data.get("weight"))
@@ -1330,9 +1456,194 @@ def calculate(calc_id, data):
             correlation = numerator / (denom_x * denom_y) if denom_x * denom_y != 0 else 0
             return f"Correlation Coefficient: {correlation:.4f}"
         
+        elif calc_id == "mortgage":
+            price, error = get_float_value(data, "price")
+            if error: return error
+            down, error = get_float_value(data, "down")
+            if error: return error
+            rate, error = get_float_value(data, "rate")
+            if error: return error
+            years, error = get_float_value(data, "years")
+            if error: return error
+            if price <= 0 or down < 0 or rate < 0 or years <= 0:
+                return "Error: All values must be positive"
+            loan_amount = price - down
+            monthly_rate = rate / 100 / 12
+            months = years * 12
+            if monthly_rate == 0:
+                payment = loan_amount / months
+            else:
+                payment = loan_amount * (monthly_rate * (1 + monthly_rate)**months) / ((1 + monthly_rate)**months - 1)
+            return f"Monthly Payment: ${payment:,.2f}, Loan Amount: ${loan_amount:,.2f}"
+        
+
+        elif calc_id == "fuel_economy":
+            distance, error = get_float_value(data, "distance")
+            if error: return error
+            fuel, error = get_float_value(data, "fuel")
+            if error: return error
+            if distance <= 0 or fuel <= 0:
+                return "Error: Distance and fuel must be positive"
+            mpg = distance / fuel
+            return f"Fuel Economy: {mpg:.2f} MPG"
+        
+
+        elif calc_id == "tax":
+            amount, error = get_float_value(data, "amount")
+            if error: return error
+            rate, error = get_float_value(data, "rate")
+            if error: return error
+            if amount <= 0 or rate < 0:
+                return "Error: Amount must be positive, rate cannot be negative"
+            tax = amount * (rate / 100)
+            total = amount + tax
+            return f"Tax: ${tax:.2f}, Total: ${total:.2f}"
+        
+        elif calc_id == "grade":
+            earned, error = get_float_value(data, "earned")
+            if error: return error
+            total, error = get_float_value(data, "total")
+            if error: return error
+            if total <= 0:
+                return "Error: Total points must be positive"
+            percentage = (earned / total) * 100
+            letter = "A" if percentage >= 90 else "B" if percentage >= 80 else "C" if percentage >= 70 else "D" if percentage >= 60 else "F"
+            return f"Grade: {percentage:.1f}% ({letter})"
+        
+        elif calc_id == "retirement":
+            age, error = get_float_value(data, "age")
+            if error: return error
+            retire_age, error = get_float_value(data, "retire_age")
+            if error: return error
+            monthly, error = get_float_value(data, "monthly")
+            if error: return error
+            annual_return, error = get_float_value(data, "return")
+            if error: return error
+            if age >= retire_age:
+                return "Error: Retirement age must be greater than current age"
+            years = retire_age - age
+            monthly_rate = annual_return / 100 / 12
+            months = years * 12
+            if monthly_rate == 0:
+                total = monthly * months
+            else:
+                total = monthly * (((1 + monthly_rate) ** months - 1) / monthly_rate)
+            return f"Retirement Savings: ${total:,.2f} after {years} years"
+        
+        elif calc_id == "investment":
+            initial, error = get_float_value(data, "initial")
+            if error: return error
+            monthly, error = get_float_value(data, "monthly")
+            if error: return error
+            annual_return, error = get_float_value(data, "return")
+            if error: return error
+            years, error = get_float_value(data, "years")
+            if error: return error
+            monthly_rate = annual_return / 100 / 12
+            months = years * 12
+            # Future value of initial investment
+            fv_initial = initial * (1 + monthly_rate) ** months
+            # Future value of monthly contributions
+            if monthly_rate == 0:
+                fv_monthly = monthly * months
+            else:
+                fv_monthly = monthly * (((1 + monthly_rate) ** months - 1) / monthly_rate)
+            total = fv_initial + fv_monthly
+            return f"Investment Value: ${total:,.2f} after {years} years"
+        
+        elif calc_id == "body_fat":
+            gender = data.get("gender")
+            age, error = get_float_value(data, "age")
+            if error: return error
+            weight, error = get_float_value(data, "weight")
+            if error: return error
+            height, error = get_float_value(data, "height")
+            if error: return error
+            # Using BMI-based estimation (simplified)
+            height_m = height / 100
+            bmi = weight / (height_m ** 2)
+            if gender == "male":
+                body_fat = (1.20 * bmi) + (0.23 * age) - 16.2
+            else:
+                body_fat = (1.20 * bmi) + (0.23 * age) - 5.4
+            return f"Estimated Body Fat: {max(0, body_fat):.1f}%"
+        
+        elif calc_id == "ideal_weight":
+            gender = data.get("gender")
+            height, error = get_float_value(data, "height")
+            if error: return error
+            if height <= 0:
+                return "Error: Height must be positive"
+            # Using Devine formula
+            if gender == "male":
+                ideal = 50 + 2.3 * ((height - 152.4) / 2.54)
+            else:
+                ideal = 45.5 + 2.3 * ((height - 152.4) / 2.54)
+            return f"Ideal Weight: {max(30, ideal):.1f} kg"
+        
+        elif calc_id == "pregnancy":
+            lmp_str = data.get("lmp")
+            if not lmp_str:
+                return "Error: Please provide last menstrual period date"
+            lmp = datetime.strptime(lmp_str, "%Y-%m-%d")
+            due_date = lmp + timedelta(days=280)
+            today = datetime.today()
+            weeks = (today - lmp).days // 7
+            return f"Due Date: {due_date.strftime('%Y-%m-%d')}, Current: {weeks} weeks"
+        
+        elif calc_id == "area_square":
+            side, error = get_float_value(data, "side")
+            if error: return error
+            if side <= 0:
+                return "Error: Side length must be positive"
+            area = side ** 2
+            return f"Area: {area:.2f} square units"
+        
+        elif calc_id == "volume_cube":
+            side, error = get_float_value(data, "side")
+            if error: return error
+            if side <= 0:
+                return "Error: Side length must be positive"
+            volume = side ** 3
+            return f"Volume: {volume:.2f} cubic units"
+        
+        elif calc_id == "volume_cylinder":
+            radius, error = get_float_value(data, "radius")
+            if error: return error
+            height, error = get_float_value(data, "height")
+            if error: return error
+            if radius <= 0 or height <= 0:
+                return "Error: Radius and height must be positive"
+            volume = math.pi * radius ** 2 * height
+            return f"Volume: {volume:.2f} cubic units"
+        
+        elif calc_id == "quadratic":
+            a, error = get_float_value(data, "a")
+            if error: return error
+            b, error = get_float_value(data, "b")
+            if error: return error
+            c, error = get_float_value(data, "c")
+            if error: return error
+            if a == 0:
+                return "Error: 'a' cannot be zero in quadratic equation"
+            discriminant = b**2 - 4*a*c
+            if discriminant < 0:
+                return "No real solutions (discriminant < 0)"
+            elif discriminant == 0:
+                x = -b / (2*a)
+                return f"One solution: x = {x:.2f}"
+            else:
+                x1 = (-b + math.sqrt(discriminant)) / (2*a)
+                x2 = (-b - math.sqrt(discriminant)) / (2*a)
+                return f"Two solutions: x₁ = {x1:.2f}, x₂ = {x2:.2f}"
+        
         else:
             return "Calculator not yet implemented"
     
+    except ValueError as e:
+        return f"Error: Invalid input - please check your numbers"
+    except ZeroDivisionError:
+        return f"Error: Division by zero - please check your inputs"
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -1347,6 +1658,166 @@ def calculate_route():
     result = calculate(calc_id, data.get("data", {}))
     return jsonify({"result": result})
 
+def save_feedback(subject, body, sender_name="Anonymous User"):
+    """Save feedback to a simple text file"""
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Save to a simple feedback file
+        with open("feedback.txt", "a", encoding="utf-8") as f:
+            f.write(f"\n{'='*60}\n")
+            f.write(f"DATE: {timestamp}\n")
+            f.write(f"FROM: {sender_name}\n")
+            f.write(f"SUBJECT: {subject}\n")
+            f.write(f"MESSAGE:\n{body}\n")
+            f.write(f"{'='*60}\n")
+        
+        print(f"Feedback saved: {subject} from {sender_name}")
+        return True
+        
+    except Exception as e:
+        print(f"Failed to save feedback: {str(e)}")
+        return False
+    
+    # If Gmail fails, return False (no file fallback)
+    print(f"❌ Failed to send email to {receiver_email}")
+    print("📧 Configure Gmail SMTP to receive emails directly")
+    return False
+
+@app.route("/contact", methods=["POST"])
+def contact_form():
+    try:
+        data = request.json
+        name = data.get("name", "Anonymous")
+        email = data.get("email", "No email provided")
+        subject = data.get("subject", "General Inquiry")
+        message = data.get("message", "")
+        
+        # Create email body
+        email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #667eea; text-align: center;">New Contact Form Submission</h2>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p><strong>Name:</strong> {name}</p>
+                    <p><strong>Email:</strong> <a href="mailto:{email}">{email}</a></p>
+                    <p><strong>Subject:</strong> {subject}</p>
+                </div>
+                <div style="background: #fff; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0;">
+                    <h3>Message:</h3>
+                    <p>{message}</p>
+                </div>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="text-align: center; color: #666; font-size: 12px;">
+                    Sent from CalcMaster Pro Contact Form<br>
+                    <a href="mailto:{email}">Reply to {name}</a>
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Save feedback
+        feedback_text = f"Name: {name}\nEmail: {email}\nSubject: {subject}\nMessage: {message}"
+        success = save_feedback(f"Contact: {subject}", feedback_text, name)
+        
+        if success:
+            return jsonify({"success": True, "message": "Message received! Thank you for contacting us."})
+        else:
+            return jsonify({"success": False, "message": "Failed to save message. Please try again."})
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"})
+
+@app.route("/feedback", methods=["POST"])
+def feedback_form():
+    try:
+        data = request.json
+        name = data.get("name", "Anonymous")
+        email = data.get("email", "No email provided")
+        rating = data.get("rating", "Not provided")
+        feedback_type = data.get("type", "General")
+        message = data.get("message", "")
+        updates = data.get("updates", False)
+        
+        # Create feedback text
+        stars = "*" * int(rating) + "-" * (5 - int(rating))
+        feedback_text = f"""Name: {name}
+Email: {email}
+Rating: {stars} ({rating}/5 stars)
+Type: {feedback_type}
+Wants Updates: {"Yes" if updates else "No"}
+Message: {message}"""
+        
+        # Save feedback
+        feedback_subject = f"Feedback: {feedback_type} ({rating}/5 stars)"
+        success = save_feedback(feedback_subject, feedback_text, name)
+        
+        if success:
+            return jsonify({"success": True, "message": "Thank you for your feedback! We appreciate your input."})
+        else:
+            return jsonify({"success": False, "message": "Failed to save feedback. Please try again."})
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"})
+
+@app.route("/feedback-view")
+def view_feedback():
+    """View all feedback submissions"""
+    try:
+        with open("feedback.txt", "r", encoding="utf-8") as f:
+            feedback_content = f.read()
+        
+        if not feedback_content.strip():
+            feedback_content = "No feedback received yet."
+        
+        # Convert to HTML with basic formatting
+        html_content = feedback_content.replace('\n', '<br>').replace('=', '')
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>CalcMaster Pro - Feedback</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }}
+                .container {{ max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                .header {{ text-align: center; color: #667eea; margin-bottom: 30px; }}
+                .feedback {{ background: #f8f9fa; padding: 15px; margin: 15px 0; border-left: 4px solid #667eea; border-radius: 5px; }}
+                .back-btn {{ display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; }}
+                .back-btn:hover {{ background: #5a6fd8; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>📝 CalcMaster Pro Feedback</h1>
+                    <p>All user feedback and contact messages</p>
+                </div>
+                <a href="/" class="back-btn">← Back to Calculator</a>
+                <div class="feedback">
+                    {html_content}
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+    except FileNotFoundError:
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head><title>CalcMaster Pro - Feedback</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 40px; text-align: center;">
+            <h2>📝 No Feedback Yet</h2>
+            <p>No feedback has been received yet.</p>
+            <a href="/" style="color: #667eea;">← Back to Calculator</a>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"Error reading feedback: {str(e)}"
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
-
