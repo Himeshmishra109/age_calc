@@ -1,18 +1,517 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Age Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100+ Calculators - All-in-One Calculator Suite</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Age Calculator</h2>
-    <form method="POST">
-        <label>Date of Birth:</label>
-        <input type="date" name="dob" required>
-        <button type="submit">Calculate</button>
-    </form>
-    {% if age_result %}
-        <h3>{{ age_result }}</h3>
-    {% endif %}
+    <div class="container">
+        <header>
+            <h1>🧮 100+ Calculators</h1>
+            <p>Your comprehensive calculator suite for all your calculation needs</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search for any calculator... (e.g., age, BMI, interest, area)">
+        </div>
+
+        <div class="category-filter" id="categoryFilter"></div>
+
+        <div class="stats" id="stats">Showing all calculators</div>
+
+        <div class="calculator-grid" id="calculatorGrid">
+            {% for calc in calculators %}
+            <div class="calculator-card" data-id="{{ calc.id }}" data-category="{{ calc.category }}" data-name="{{ calc.name|lower }}" data-description="{{ calc.description|lower }}">
+                <h3>{{ calc.name }}</h3>
+                <span class="category">{{ calc.category }}</span>
+                <p class="description">{{ calc.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="no-results" id="noResults">
+            <p>No calculators found matching your search.</p>
+        </div>
+
+        <div class="calculator-form-container" id="calculatorFormContainer">
+            <button class="back-button" onclick="showGrid()">← Back to Calculators</button>
+            <div class="calculator-form" id="calculatorForm"></div>
+        </div>
+    </div>
+
+    <script>
+        const calculators = {{ calculators|tojson }};
+        let currentCalcId = null;
+        let activeCategory = 'all';
+
+        // Initialize categories
+        const categories = [...new Set(calculators.map(c => c.category))];
+        const categoryFilter = document.getElementById('categoryFilter');
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'category-button';
+            btn.textContent = cat;
+            btn.onclick = () => filterByCategory(cat);
+            categoryFilter.appendChild(btn);
+        });
+
+        const allBtn = document.createElement('button');
+        allBtn.className = 'category-button active';
+        allBtn.textContent = 'All';
+        allBtn.onclick = () => filterByCategory('all');
+        categoryFilter.insertBefore(allBtn, categoryFilter.firstChild);
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            filterCalculators(query, activeCategory);
+        });
+
+        function filterByCategory(category) {
+            activeCategory = category;
+            document.querySelectorAll('.category-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            filterCalculators(document.getElementById('searchBox').value.toLowerCase(), category);
+        }
+
+        function filterCalculators(query, category) {
+            const cards = document.querySelectorAll('.calculator-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const desc = card.dataset.description;
+                const cardCategory = card.dataset.category;
+                const matchesSearch = !query || name.includes(query) || desc.includes(query);
+                const matchesCategory = category === 'all' || cardCategory === category;
+
+                if (matchesSearch && matchesCategory) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('noResults').classList.toggle('show', visibleCount === 0);
+            document.getElementById('stats').textContent = `Showing ${visibleCount} calculator${visibleCount !== 1 ? 's' : ''}`;
+        }
+
+        // Calculator card click
+        document.querySelectorAll('.calculator-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const calcId = card.dataset.id;
+                showCalculator(calcId);
+            });
+        });
+
+        function showCalculator(calcId) {
+            currentCalcId = calcId;
+            const calc = calculators.find(c => c.id === calcId);
+            document.getElementById('calculatorGrid').style.display = 'none';
+            document.getElementById('noResults').classList.remove('show');
+            document.getElementById('calculatorFormContainer').classList.add('active');
+            
+            generateForm(calc);
+        }
+
+        function showGrid() {
+            document.getElementById('calculatorGrid').style.display = 'grid';
+            document.getElementById('calculatorFormContainer').classList.remove('active');
+            document.getElementById('calculatorForm').innerHTML = '';
+            document.querySelector('.result')?.remove();
+            currentCalcId = null;
+        }
+
+        function generateForm(calc) {
+            const form = document.getElementById('calculatorForm');
+            form.innerHTML = `<h2>${calc.name}</h2><p style="color: #666; margin-bottom: 20px;">${calc.description}</p>`;
+            
+            let formHTML = '';
+            const calcId = calc.id;
+
+            // Generate form fields based on calculator type
+            if (calcId === 'age') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Date of Birth:</label>
+                        <input type="date" id="dob" required>
+                    </div>
+                `;
+            } else if (calcId === 'days_between') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Start Date:</label>
+                        <input type="date" id="date1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date:</label>
+                        <input type="date" id="date2" required>
+                    </div>
+                `;
+            } else if (calcId === 'bmi') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Weight (kg):</label>
+                        <input type="number" id="weight" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Height (cm):</label>
+                        <input type="number" id="height" step="0.1" required>
+                    </div>
+                `;
+            } else if (calcId === 'simple_interest') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Principal Amount ($):</label>
+                        <input type="number" id="principal" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%):</label>
+                        <input type="number" id="rate" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Time (years):</label>
+                        <input type="number" id="time" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'compound_interest') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Principal Amount ($):</label>
+                        <input type="number" id="principal" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (%):</label>
+                        <input type="number" id="rate" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Time (years):</label>
+                        <input type="number" id="time" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Compounds per year:</label>
+                        <input type="number" id="compounds" value="12" required>
+                    </div>
+                `;
+            } else if (calcId === 'loan_payment') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Loan Amount ($):</label>
+                        <input type="number" id="principal" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Annual Interest Rate (%):</label>
+                        <input type="number" id="rate" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Term (months):</label>
+                        <input type="number" id="months" required>
+                    </div>
+                `;
+            } else if (calcId === 'percentage') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Value:</label>
+                        <input type="number" id="value" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Percentage:</label>
+                        <input type="number" id="percent" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'area_circle') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Radius:</label>
+                        <input type="number" id="radius" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'area_rectangle') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Length:</label>
+                        <input type="number" id="length" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Width:</label>
+                        <input type="number" id="width" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'area_triangle') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Base:</label>
+                        <input type="number" id="base" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Height:</label>
+                        <input type="number" id="height" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'volume_sphere') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Radius:</label>
+                        <input type="number" id="radius" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'pythagorean') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Side A (leave empty to calculate):</label>
+                        <input type="number" id="a" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Side B (leave empty to calculate):</label>
+                        <input type="number" id="b" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Hypotenuse C (leave empty to calculate):</label>
+                        <input type="number" id="c" step="0.01">
+                    </div>
+                `;
+            } else if (calcId === 'unit_temperature') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Temperature:</label>
+                        <input type="number" id="temp" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>From:</label>
+                        <select id="from" required>
+                            <option value="celsius">Celsius</option>
+                            <option value="fahrenheit">Fahrenheit</option>
+                            <option value="kelvin">Kelvin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>To:</label>
+                        <select id="to" required>
+                            <option value="celsius">Celsius</option>
+                            <option value="fahrenheit">Fahrenheit</option>
+                            <option value="kelvin">Kelvin</option>
+                        </select>
+                    </div>
+                `;
+            } else if (calcId === 'tip_calculator') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Bill Amount ($):</label>
+                        <input type="number" id="bill" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tip Percentage (%):</label>
+                        <input type="number" id="tip" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'discount') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Original Price ($):</label>
+                        <input type="number" id="original" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Discount Percentage (%):</label>
+                        <input type="number" id="discount" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'bmr') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Weight (kg):</label>
+                        <input type="number" id="weight" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Height (cm):</label>
+                        <input type="number" id="height" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Age:</label>
+                        <input type="number" id="age" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender:</label>
+                        <select id="gender" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                `;
+            } else if (calcId === 'gpa') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Grades (comma-separated, e.g., A,B,C):</label>
+                        <input type="text" id="grades" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Credits (comma-separated, e.g., 3,4,3):</label>
+                        <input type="text" id="credits" required>
+                    </div>
+                `;
+            } else if (calcId === 'speed') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Distance:</label>
+                        <input type="number" id="distance" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Time:</label>
+                        <input type="number" id="time" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'force') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Mass (kg):</label>
+                        <input type="number" id="mass" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Acceleration (m/s²):</label>
+                        <input type="number" id="acceleration" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'kinetic_energy') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Mass (kg):</label>
+                        <input type="number" id="mass" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Velocity (m/s):</label>
+                        <input type="number" id="velocity" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'factorial') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Number:</label>
+                        <input type="number" id="n" required>
+                    </div>
+                `;
+            } else if (calcId === 'gcd') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Number A:</label>
+                        <input type="number" id="a" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number B:</label>
+                        <input type="number" id="b" required>
+                    </div>
+                `;
+            } else if (calcId === 'lcm') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Number A:</label>
+                        <input type="number" id="a" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Number B:</label>
+                        <input type="number" id="b" required>
+                    </div>
+                `;
+            } else if (calcId === 'mean') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Numbers (comma-separated):</label>
+                        <input type="text" id="numbers" required>
+                    </div>
+                `;
+            } else if (calcId === 'fuel_efficiency') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Distance (miles):</label>
+                        <input type="number" id="distance" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fuel Used (gallons):</label>
+                        <input type="number" id="fuel" step="0.01" required>
+                    </div>
+                `;
+            } else if (calcId === 'paint_needed') {
+                formHTML = `
+                    <div class="form-group">
+                        <label>Length (feet):</label>
+                        <input type="number" id="length" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Width (feet):</label>
+                        <input type="number" id="width" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Height (feet, optional):</label>
+                        <input type="number" id="height" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Coats:</label>
+                        <input type="number" id="coats" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Coverage per gallon (sq ft):</label>
+                        <input type="number" id="coverage" value="350" required>
+                    </div>
+                `;
+            } else {
+                formHTML = `
+                    <div class="form-group">
+                        <p style="color: #666; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                            This calculator is coming soon! The backend calculation logic is being implemented.
+                        </p>
+                    </div>
+                `;
+            }
+
+            formHTML += `
+                <button type="submit" class="submit-button">Calculate</button>
+                <div class="result" id="result"></div>
+            `;
+
+            form.innerHTML += formHTML;
+
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                calculate(calcId);
+            };
+        }
+
+        function calculate(calcId) {
+            const form = document.getElementById('calculatorForm');
+            const inputs = form.querySelectorAll('input, select');
+            const data = {};
+
+            inputs.forEach(input => {
+                if (input.id && input.value) {
+                    data[input.id] = input.value;
+                }
+            });
+
+            fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    calc_id: calcId,
+                    data: data
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.textContent = result.result;
+                resultDiv.classList.add('show');
+            })
+            .catch(error => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.textContent = 'Error: ' + error.message;
+                resultDiv.classList.add('show');
+            });
+        }
+    </script>
 </body>
 </html>
