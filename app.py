@@ -1,85 +1,846 @@
-from flask import Flask, render_template, request, redirect, url_for
-from datetime import datetime, date, timedelta
-import calendar
+from flask import Flask, render_template, request, redirect, url_for,jsonify
+from datetime import datetime, timedelta
+import math
 
-app = Flask(__name__, static_folder="static", template_folder="templates")
+app = Flask(__name__)
 
+# Define all 100 calculators with their metadata
+CALCULATORS = [
+    {'id': 'acceleration', 'name': 'Acceleration', 'category': 'Physics', 'description': 'Calculate acceleration'},
+    {'id': 'date_add', 'name': 'Add Days to Date', 'category': 'Date & Time', 'description': 'Add days to a date'},
+    {'id': 'age', 'name': 'Age Calculator', 'category': 'Date & Time', 'description': 'Calculate your exact age'},
+    {'id': 'age_difference', 'name': 'Age Difference', 'category': 'Date & Time', 'description': 'Calculate age difference'},
+    {'id': 'alcohol_units', 'name': 'Alcohol Units', 'category': 'Health', 'description': 'Calculate alcohol units'},
+    {'id': 'unit_area', 'name': 'Area Converter', 'category': 'Unit Conversion', 'description': 'Convert area units'},
+    {'id': 'bmi', 'name': 'BMI Calculator', 'category': 'Health', 'description': 'Calculate Body Mass Index'},
+    {'id': 'bmr', 'name': 'BMR Calculator', 'category': 'Health', 'description': 'Calculate Basal Metabolic Rate'},
+    {'id': 'binary', 'name': 'Binary Converter', 'category': 'Math', 'description': 'Convert decimal to binary'},
+    {'id': 'body_fat', 'name': 'Body Fat Percentage', 'category': 'Health', 'description': 'Estimate body fat percentage'},
+    {'id': 'cgpa', 'name': 'CGPA Calculator', 'category': 'Education', 'description': 'Calculate Cumulative GPA'},
+    {'id': 'calories_burned', 'name': 'Calories Burned', 'category': 'Health', 'description': 'Calculate calories burned'},
+    {'id': 'car_loan', 'name': 'Car Loan', 'category': 'Automotive', 'description': 'Calculate car loan payment'},
+    {'id': 'carbon_footprint', 'name': 'Carbon Footprint', 'category': 'Environment', 'description': 'Calculate carbon footprint'},
+    {'id': 'carbs_needs', 'name': 'Carbs Needs', 'category': 'Health', 'description': 'Calculate daily carbs'},
+    {'id': 'area_circle', 'name': 'Circle Area', 'category': 'Math', 'description': 'Calculate circle area'},
+    {'id': 'combination', 'name': 'Combination', 'category': 'Math', 'description': 'Calculate combinations'},
+    {'id': 'compound_interest', 'name': 'Compound Interest', 'category': 'Finance', 'description': 'Calculate compound interest'},
+    {'id': 'concrete', 'name': 'Concrete Calculator', 'category': 'Home', 'description': 'Calculate concrete needed'},
+    {'id': 'cooking_time', 'name': 'Cooking Time', 'category': 'Cooking', 'description': 'Calculate cooking time'},
+    {'id': 'correlation', 'name': 'Correlation Coefficient', 'category': 'Statistics', 'description': 'Calculate correlation'},
+    {'id': 'countdown', 'name': 'Countdown Timer', 'category': 'Date & Time', 'description': 'Calculate time until event'},
+    {'id': 'volume_cube', 'name': 'Cube Volume', 'category': 'Math', 'description': 'Calculate cube volume'},
+    {'id': 'currency_converter', 'name': 'Currency Converter', 'category': 'Finance', 'description': 'Convert between currencies'},
+    {'id': 'volume_cylinder', 'name': 'Cylinder Volume', 'category': 'Math', 'description': 'Calculate cylinder volume'},
+    {'id': 'water_intake', 'name': 'Daily Water Intake', 'category': 'Health', 'description': 'Calculate daily water needs'},
+    {'id': 'weekday', 'name': 'Day of Week', 'category': 'Date & Time', 'description': 'Find day of week for a date'},
+    {'id': 'days_between', 'name': 'Days Between Dates', 'category': 'Date & Time', 'description': 'Calculate days between two dates'},
+    {'id': 'density', 'name': 'Density Calculator', 'category': 'Physics', 'description': 'Calculate density'},
+    {'id': 'discount', 'name': 'Discount Calculator', 'category': 'Finance', 'description': 'Calculate discount price'},
+    {'id': 'distance', 'name': 'Distance Calculator', 'category': 'Math', 'description': 'Calculate distance between points'},
+    {'id': 'electricity_cost', 'name': 'Electricity Cost', 'category': 'Home', 'description': 'Calculate electricity cost'},
+    {'id': 'unit_energy', 'name': 'Energy Converter', 'category': 'Unit Conversion', 'description': 'Convert energy units'},
+    {'id': 'factorial', 'name': 'Factorial Calculator', 'category': 'Math', 'description': 'Calculate factorial'},
+    {'id': 'fence', 'name': 'Fence Calculator', 'category': 'Home', 'description': 'Calculate fence materials'},
+    {'id': 'fiber_needs', 'name': 'Fiber Needs', 'category': 'Health', 'description': 'Calculate daily fiber'},
+    {'id': 'fibonacci', 'name': 'Fibonacci Sequence', 'category': 'Math', 'description': 'Generate Fibonacci sequence'},
+    {'id': 'final_grade', 'name': 'Final Grade Needed', 'category': 'Education', 'description': 'Calculate grade needed on final'},
+    {'id': 'flooring', 'name': 'Flooring Calculator', 'category': 'Home', 'description': 'Calculate flooring needed'},
+    {'id': 'force', 'name': 'Force Calculator', 'category': 'Physics', 'description': 'Calculate force (F=ma)'},
+    {'id': 'fuel_cost', 'name': 'Fuel Cost', 'category': 'Automotive', 'description': 'Calculate trip fuel cost'},
+    {'id': 'fuel_efficiency', 'name': 'Fuel Efficiency', 'category': 'Automotive', 'description': 'Calculate MPG/KPL'},
+    {'id': 'gcd', 'name': 'GCD Calculator', 'category': 'Math', 'description': 'Find Greatest Common Divisor'},
+    {'id': 'gpa', 'name': 'GPA Calculator', 'category': 'Education', 'description': 'Calculate Grade Point Average'},
+    {'id': 'grade', 'name': 'Grade Calculator', 'category': 'Education', 'description': 'Calculate grade percentage'},
+    {'id': 'hex', 'name': 'Hexadecimal Converter', 'category': 'Math', 'description': 'Convert to hexadecimal'},
+    {'id': 'ideal_weight', 'name': 'Ideal Weight', 'category': 'Health', 'description': 'Calculate ideal body weight'},
+    {'id': 'investment_return', 'name': 'Investment Return', 'category': 'Finance', 'description': 'Calculate investment returns'},
+    {'id': 'kinetic_energy', 'name': 'Kinetic Energy', 'category': 'Physics', 'description': 'Calculate kinetic energy'},
+    {'id': 'lcm', 'name': 'LCM Calculator', 'category': 'Math', 'description': 'Find Least Common Multiple'},
+    {'id': 'leap_year', 'name': 'Leap Year Checker', 'category': 'Date & Time', 'description': 'Check if a year is a leap year'},
+    {'id': 'lease_vs_buy', 'name': 'Lease vs Buy', 'category': 'Automotive', 'description': 'Compare lease vs buy'},
+    {'id': 'unit_length', 'name': 'Length Converter', 'category': 'Unit Conversion', 'description': 'Convert length units'},
+    {'id': 'loan_payment', 'name': 'Loan Payment', 'category': 'Finance', 'description': 'Calculate monthly loan payment'},
+    {'id': 'mean', 'name': 'Mean Calculator', 'category': 'Statistics', 'description': 'Calculate mean/average'},
+    {'id': 'median', 'name': 'Median Calculator', 'category': 'Statistics', 'description': 'Calculate median'},
+    {'id': 'mode', 'name': 'Mode Calculator', 'category': 'Statistics', 'description': 'Calculate mode'},
+    {'id': 'momentum', 'name': 'Momentum', 'category': 'Physics', 'description': 'Calculate momentum'},
+    {'id': 'mortgage', 'name': 'Mortgage Calculator', 'category': 'Finance', 'description': 'Calculate mortgage payments'},
+    {'id': 'next_birthday', 'name': 'Next Birthday', 'category': 'Date & Time', 'description': 'Days until next birthday'},
+    {'id': 'octal', 'name': 'Octal Converter', 'category': 'Math', 'description': 'Convert to octal'},
+    {'id': 'oven_temp', 'name': 'Oven Temperature', 'category': 'Cooking', 'description': 'Convert oven temperatures'},
+    {'id': 'ovulation', 'name': 'Ovulation Calculator', 'category': 'Health', 'description': 'Calculate ovulation date'},
+    {'id': 'paint_needed', 'name': 'Paint Needed', 'category': 'Home', 'description': 'Calculate paint needed'},
+    {'id': 'percentage', 'name': 'Percentage Calculator', 'category': 'Math', 'description': 'Calculate percentages'},
+    {'id': 'percentage_change', 'name': 'Percentage Change', 'category': 'Math', 'description': 'Calculate percentage change'},
+    {'id': 'percentage_of', 'name': 'Percentage Of', 'category': 'Math', 'description': 'Find percentage of a number'},
+    {'id': 'permutation', 'name': 'Permutation', 'category': 'Math', 'description': 'Calculate permutations'},
+    {'id': 'potential_energy', 'name': 'Potential Energy', 'category': 'Physics', 'description': 'Calculate potential energy'},
+    {'id': 'power_physics', 'name': 'Power (Physics)', 'category': 'Physics', 'description': 'Calculate power'},
+    {'id': 'unit_power', 'name': 'Power Converter', 'category': 'Unit Conversion', 'description': 'Convert power units'},
+    {'id': 'pregnancy_due', 'name': 'Pregnancy Due Date', 'category': 'Health', 'description': 'Calculate due date'},
+    {'id': 'pressure_physics', 'name': 'Pressure (Physics)', 'category': 'Physics', 'description': 'Calculate pressure'},
+    {'id': 'unit_pressure', 'name': 'Pressure Converter', 'category': 'Unit Conversion', 'description': 'Convert pressure units'},
+    {'id': 'prime_check', 'name': 'Prime Number Checker', 'category': 'Math', 'description': 'Check if number is prime'},
+    {'id': 'protein_needs', 'name': 'Protein Needs', 'category': 'Health', 'description': 'Calculate daily protein'},
+    {'id': 'pythagorean', 'name': 'Pythagorean Theorem', 'category': 'Math', 'description': 'Calculate triangle sides'},
+    {'id': 'quadratic', 'name': 'Quadratic Equation', 'category': 'Math', 'description': 'Solve quadratic equations'},
+    {'id': 'random_number', 'name': 'Random Number', 'category': 'Math', 'description': 'Generate random numbers'},
+    {'id': 'recipe_scaler', 'name': 'Recipe Scaler', 'category': 'Cooking', 'description': 'Scale recipe ingredients'},
+    {'id': 'area_rectangle', 'name': 'Rectangle Area', 'category': 'Math', 'description': 'Calculate rectangle area'},
+    {'id': 'recycling', 'name': 'Recycling Impact', 'category': 'Environment', 'description': 'Calculate recycling impact'},
+    {'id': 'retirement', 'name': 'Retirement Savings', 'category': 'Finance', 'description': 'Calculate retirement savings'},
+    {'id': 'roman_numeral', 'name': 'Roman Numeral', 'category': 'Math', 'description': 'Convert to/from Roman numerals'},
+    {'id': 'roofing', 'name': 'Roofing Calculator', 'category': 'Home', 'description': 'Calculate roofing materials'},
+    {'id': 'savings_goal', 'name': 'Savings Goal', 'category': 'Finance', 'description': 'Calculate savings needed for goal'},
+    {'id': 'simple_interest', 'name': 'Simple Interest', 'category': 'Finance', 'description': 'Calculate simple interest'},
+    {'id': 'sleep_hours', 'name': 'Sleep Hours', 'category': 'Health', 'description': 'Calculate sleep cycles'},
+    {'id': 'slope', 'name': 'Slope Calculator', 'category': 'Math', 'description': 'Calculate line slope'},
+    {'id': 'solar_panels', 'name': 'Solar Panels', 'category': 'Home', 'description': 'Calculate solar panel needs'},
+    {'id': 'speed', 'name': 'Speed Calculator', 'category': 'Physics', 'description': 'Calculate speed'},
+    {'id': 'unit_speed', 'name': 'Speed Converter', 'category': 'Unit Conversion', 'description': 'Convert speed units'},
+    {'id': 'volume_sphere', 'name': 'Sphere Volume', 'category': 'Math', 'description': 'Calculate sphere volume'},
+    {'id': 'standard_deviation', 'name': 'Standard Deviation', 'category': 'Statistics', 'description': 'Calculate standard deviation'},
+    {'id': 'heart_rate', 'name': 'Target Heart Rate', 'category': 'Health', 'description': 'Calculate target heart rate zone'},
+    {'id': 'unit_temperature', 'name': 'Temperature Converter', 'category': 'Unit Conversion', 'description': 'Convert temperature'},
+    {'id': 'test_score', 'name': 'Test Score', 'category': 'Education', 'description': 'Calculate test score percentage'},
+    {'id': 'tile_needed', 'name': 'Tile Needed', 'category': 'Home', 'description': 'Calculate tiles needed'},
+    {'id': 'unit_time', 'name': 'Time Converter', 'category': 'Unit Conversion', 'description': 'Convert time units'},
+    {'id': 'time_zone', 'name': 'Time Zone Converter', 'category': 'Date & Time', 'description': 'Convert time zones'},
+    {'id': 'tip_calculator', 'name': 'Tip Calculator', 'category': 'Finance', 'description': 'Calculate tip amount'},
+    {'id': 'tire_size', 'name': 'Tire Size', 'category': 'Automotive', 'description': 'Calculate tire dimensions'},
+    {'id': 'area_trapezoid', 'name': 'Trapezoid Area', 'category': 'Math', 'description': 'Calculate trapezoid area'},
+    {'id': 'tree_offset', 'name': 'Tree Offset', 'category': 'Environment', 'description': 'Calculate trees to offset CO2'},
+    {'id': 'area_triangle', 'name': 'Triangle Area', 'category': 'Math', 'description': 'Calculate triangle area'},
+    {'id': 'variance', 'name': 'Variance Calculator', 'category': 'Statistics', 'description': 'Calculate variance'},
+    {'id': 'unit_volume', 'name': 'Volume Converter', 'category': 'Unit Conversion', 'description': 'Convert volume units'},
+    {'id': 'unit_weight', 'name': 'Weight Converter', 'category': 'Unit Conversion', 'description': 'Convert weight units'},
+    {'id': 'work', 'name': 'Work Calculator', 'category': 'Physics', 'description': 'Calculate work done'},
+    {'id': 'work_days', 'name': 'Work Days', 'category': 'Date & Time', 'description': 'Calculate work days between dates'},
+]
 
-def compute_age(birth_date, today):
-    years = today.year - birth_date.year
-    months = today.month - birth_date.month
-    days = today.day - birth_date.day
-
-    if days < 0:
-        # borrow days from previous month
-        prev_month = today.month - 1 or 12
-        prev_year = today.year if today.month != 1 else today.year - 1
-        days_in_prev_month = calendar.monthrange(prev_year, prev_month)[1]
-        days += days_in_prev_month
-        months -= 1
-
-    if months < 0:
-        months += 12
-        years -= 1
-
-    return years, months, days
-
-
-def next_birthday_info(birth_date, today):
-    # next birthday year
-    ny = today.year if (today.month, today.day) <= (birth_date.month, birth_date.day) else today.year + 1
+def calculate(calc_id, data):
+    """Perform calculations based on calculator ID"""
     try:
-        nb = date(ny, birth_date.month, birth_date.day)
-    except ValueError:
-        # Feb 29 handling -> treat as Feb 28 on non-leap years
-        nb = date(ny, 2, 28)
-    delta = nb - today
-    return nb, delta.days
+        if calc_id == "age":
+            dob = datetime.strptime(data.get("dob"), "%Y-%m-%d")
+            today = datetime.today()
+            years = today.year - dob.year
+            months = today.month - dob.month
+            days = today.day - dob.day
+            if months < 0:
+                years -= 1
+                months += 12
+            if days < 0:
+                months -= 1
+                prev_month = today.replace(day=1) - timedelta(days=1)
+                days += (today - prev_month).days
+            return f"Age: {years} years, {months} months, {days} days"
+        
+        elif calc_id == "days_between":
+            date1 = datetime.strptime(data.get("date1"), "%Y-%m-%d")
+            date2 = datetime.strptime(data.get("date2"), "%Y-%m-%d")
+            days = abs((date2 - date1).days)
+            return f"Days between: {days} days"
+        
+        elif calc_id == "bmi":
+            weight = float(data.get("weight"))
+            height = float(data.get("height")) / 100
+            bmi = weight / (height ** 2)
+            category = "Underweight" if bmi < 18.5 else "Normal" if bmi < 25 else "Overweight" if bmi < 30 else "Obese"
+            return f"BMI: {bmi:.2f} ({category})"
+        
+        elif calc_id == "simple_interest":
+            principal = float(data.get("principal"))
+            rate = float(data.get("rate"))
+            time = float(data.get("time"))
+            interest = (principal * rate * time) / 100
+            return f"Interest: ${interest:,.2f}, Total: ${principal + interest:,.2f}"
+        
+        elif calc_id == "compound_interest":
+            principal = float(data.get("principal"))
+            rate = float(data.get("rate")) / 100
+            time = float(data.get("time"))
+            n = float(data.get("compounds", 12))
+            amount = principal * (1 + rate/n) ** (n * time)
+            return f"Amount: ${amount:,.2f}, Interest: ${amount - principal:,.2f}"
+        
+        elif calc_id == "loan_payment":
+            principal = float(data.get("principal"))
+            rate = float(data.get("rate")) / 100 / 12
+            months = float(data.get("months"))
+            payment = principal * (rate * (1 + rate)**months) / ((1 + rate)**months - 1)
+            return f"Monthly Payment: ${payment:,.2f}"
+        
+        elif calc_id == "percentage":
+            value = float(data.get("value"))
+            percent = float(data.get("percent"))
+            result = (value * percent) / 100
+            return f"{percent}% of {value} = {result}"
+        
+        elif calc_id == "area_circle":
+            radius = float(data.get("radius"))
+            area = math.pi * radius ** 2
+            return f"Area: {area:.2f} square units"
+        
+        elif calc_id == "area_rectangle":
+            length = float(data.get("length"))
+            width = float(data.get("width"))
+            area = length * width
+            return f"Area: {area:.2f} square units"
+        
+        elif calc_id == "area_triangle":
+            base = float(data.get("base"))
+            height = float(data.get("height"))
+            area = 0.5 * base * height
+            return f"Area: {area:.2f} square units"
+        
+        elif calc_id == "volume_sphere":
+            radius = float(data.get("radius"))
+            volume = (4/3) * math.pi * radius ** 3
+            return f"Volume: {volume:.2f} cubic units"
+        
+        elif calc_id == "pythagorean":
+            a = data.get("a")
+            b = data.get("b")
+            c = data.get("c")
+            if not c:
+                a, b = float(a), float(b)
+                c = math.sqrt(a**2 + b**2)
+                return f"Hypotenuse (c): {c:.2f}"
+            elif not a:
+                b, c = float(b), float(c)
+                a = math.sqrt(c**2 - b**2)
+                return f"Side (a): {a:.2f}"
+            else:
+                a, c = float(a), float(c)
+                b = math.sqrt(c**2 - a**2)
+                return f"Side (b): {b:.2f}"
+        
+        elif calc_id == "unit_temperature":
+            temp = float(data.get("temp"))
+            from_unit = data.get("from")
+            to_unit = data.get("to")
+            if from_unit == "celsius" and to_unit == "fahrenheit":
+                result = (temp * 9/5) + 32
+            elif from_unit == "fahrenheit" and to_unit == "celsius":
+                result = (temp - 32) * 5/9
+            elif from_unit == "celsius" and to_unit == "kelvin":
+                result = temp + 273.15
+            elif from_unit == "kelvin" and to_unit == "celsius":
+                result = temp - 273.15
+            else:
+                result = temp
+            return f"{temp}° {from_unit} = {result:.2f}° {to_unit}"
+        
+        elif calc_id == "tip_calculator":
+            bill = float(data.get("bill"))
+            tip_percent = float(data.get("tip"))
+            tip = bill * (tip_percent / 100)
+            total = bill + tip
+            return f"Tip: ${tip:.2f}, Total: ${total:.2f}"
+        
+        elif calc_id == "discount":
+            original = float(data.get("original"))
+            discount = float(data.get("discount"))
+            final = original * (1 - discount / 100)
+            saved = original - final
+            return f"Final Price: ${final:.2f}, Saved: ${saved:.2f}"
+        
+        elif calc_id == "bmr":
+            weight = float(data.get("weight"))
+            height = float(data.get("height"))
+            age = float(data.get("age"))
+            gender = data.get("gender")
+            if gender == "male":
+                bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
+            else:
+                bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+            return f"BMR: {bmr:.2f} calories/day"
+        
+        elif calc_id == "gpa":
+            grades = data.get("grades", "").split(",")
+            credits = data.get("credits", "").split(",")
+            grade_points = {"A": 4, "B": 3, "C": 2, "D": 1, "F": 0}
+            total_points = sum(grade_points.get(g.strip().upper(), 0) * float(c.strip()) for g, c in zip(grades, credits))
+            total_credits = sum(float(c.strip()) for c in credits)
+            gpa = total_points / total_credits if total_credits > 0 else 0
+            return f"GPA: {gpa:.2f}"
+        
+        elif calc_id == "speed":
+            distance = float(data.get("distance"))
+            time = float(data.get("time"))
+            speed = distance / time
+            return f"Speed: {speed:.2f} units/time"
+        
+        elif calc_id == "force":
+            mass = float(data.get("mass"))
+            acceleration = float(data.get("acceleration"))
+            force = mass * acceleration
+            return f"Force: {force:.2f} N"
+        
+        elif calc_id == "kinetic_energy":
+            mass = float(data.get("mass"))
+            velocity = float(data.get("velocity"))
+            ke = 0.5 * mass * velocity ** 2
+            return f"Kinetic Energy: {ke:.2f} J"
+        
+        elif calc_id == "factorial":
+            n = int(float(data.get("n")))
+            if n < 0:
+                return "Error: Factorial not defined for negative numbers"
+            result = math.factorial(n)
+            return f"{n}! = {result:,}"
+        
+        elif calc_id == "gcd":
+            a = int(float(data.get("a")))
+            b = int(float(data.get("b")))
+            result = math.gcd(a, b)
+            return f"GCD({a}, {b}) = {result}"
+        
+        elif calc_id == "lcm":
+            a = int(float(data.get("a")))
+            b = int(float(data.get("b")))
+            result = abs(a * b) // math.gcd(a, b)
+            return f"LCM({a}, {b}) = {result}"
+        
+        elif calc_id == "mean":
+            numbers = [float(x.strip()) for x in data.get("numbers", "").split(",")]
+            mean = sum(numbers) / len(numbers) if numbers else 0
+            return f"Mean: {mean:.2f}"
+        
+        elif calc_id == "fuel_efficiency":
+            distance = float(data.get("distance"))
+            fuel = float(data.get("fuel"))
+            mpg = distance / fuel
+            kpl = mpg * 0.425144
+            return f"MPG: {mpg:.2f}, KPL: {kpl:.2f}"
+        
+        elif calc_id == "paint_needed":
+            length = float(data.get("length"))
+            width = float(data.get("width"))
+            height = float(data.get("height", 0))
+            coats = float(data.get("coats", 1))
+            if height > 0:
+                area = 2 * (length * width + length * height + width * height)
+            else:
+                area = length * width
+            coverage = float(data.get("coverage", 350))
+            gallons = (area * coats) / coverage
+            return f"Paint Needed: {gallons:.2f} gallons"
+        
+        elif calc_id == "date_add":
+            date = datetime.strptime(data.get("date"), "%Y-%m-%d")
+            days = int(float(data.get("days", 0)))
+            result_date = date + timedelta(days=days)
+            return f"Result Date: {result_date.strftime('%Y-%m-%d')}"
+        
+        elif calc_id == "weekday":
+            date = datetime.strptime(data.get("date"), "%Y-%m-%d")
+            weekday = date.strftime("%A")
+            return f"Day of Week: {weekday}"
+        
+        elif calc_id == "leap_year":
+            year = int(float(data.get("year")))
+            is_leap = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+            return f"{year} is {'a leap year' if is_leap else 'not a leap year'}"
+        
+        elif calc_id == "body_fat":
+            weight = float(data.get("weight"))
+            waist = float(data.get("waist", 0))
+            gender = data.get("gender", "male")
+            if waist > 0:
+                if gender == "male":
+                    bf = 64 - (20 * (height / waist)) if "height" in data else 0
+                else:
+                    bf = 76 - (20 * (height / waist)) if "height" in data else 0
+                return f"Estimated Body Fat: {bf:.1f}%"
+            return "Please provide waist measurement"
+        
+        elif calc_id == "ideal_weight":
+            height = float(data.get("height"))
+            gender = data.get("gender", "male")
+            if gender == "male":
+                ideal = 50 + 2.3 * ((height / 2.54) - 60)
+            else:
+                ideal = 45.5 + 2.3 * ((height / 2.54) - 60)
+            return f"Ideal Weight: {ideal:.1f} kg ({ideal * 2.20462:.1f} lbs)"
+        
+        elif calc_id == "calories_burned":
+            weight = float(data.get("weight"))
+            duration = float(data.get("duration"))
+            activity = data.get("activity", "moderate")
+            mets = {"light": 3, "moderate": 5, "vigorous": 8}.get(activity, 5)
+            calories = mets * weight * (duration / 60)
+            return f"Calories Burned: {calories:.0f}"
+        
+        elif calc_id == "water_intake":
+            weight = float(data.get("weight"))
+            activity = float(data.get("activity", 0))
+            base = weight * 0.033
+            additional = activity * 0.5
+            total = base + additional
+            return f"Daily Water Intake: {total:.1f} liters ({total * 33.814:.1f} oz)"
+        
+        elif calc_id == "heart_rate":
+            age = float(data.get("age"))
+            max_hr = 220 - age
+            target_min = max_hr * 0.5
+            target_max = max_hr * 0.85
+            return f"Max HR: {max_hr:.0f} bpm, Target Zone: {target_min:.0f}-{target_max:.0f} bpm"
+        
+        elif calc_id == "mortgage":
+            principal = float(data.get("principal"))
+            rate = float(data.get("rate")) / 100 / 12
+            months = float(data.get("months"))
+            payment = principal * (rate * (1 + rate)**months) / ((1 + rate)**months - 1)
+            total = payment * months
+            return f"Monthly Payment: ${payment:,.2f}, Total: ${total:,.2f}"
+        
+        elif calc_id == "investment_return":
+            principal = float(data.get("principal"))
+            rate = float(data.get("rate")) / 100
+            time = float(data.get("time"))
+            amount = principal * (1 + rate) ** time
+            return f"Future Value: ${amount:,.2f}, Return: ${amount - principal:,.2f}"
+        
+        elif calc_id == "savings_goal":
+            goal = float(data.get("goal"))
+            rate = float(data.get("rate", 0)) / 100 / 12
+            months = float(data.get("months"))
+            if rate > 0:
+                payment = goal * rate / ((1 + rate)**months - 1)
+            else:
+                payment = goal / months
+            return f"Monthly Savings Needed: ${payment:,.2f}"
+        
+        elif calc_id == "retirement":
+            current_age = float(data.get("current_age"))
+            retire_age = float(data.get("retire_age"))
+            current_savings = float(data.get("current_savings", 0))
+            monthly_contribution = float(data.get("monthly_contribution", 0))
+            rate = float(data.get("rate", 5)) / 100 / 12
+            months = (retire_age - current_age) * 12
+            future_value = current_savings * (1 + rate) ** months
+            if monthly_contribution > 0:
+                future_value += monthly_contribution * (((1 + rate) ** months - 1) / rate)
+            return f"Retirement Savings: ${future_value:,.2f}"
+        
+        elif calc_id == "currency_converter":
+            amount = float(data.get("amount"))
+            from_curr = float(data.get("from_rate", 1))
+            to_curr = float(data.get("to_rate", 1))
+            result = (amount / from_curr) * to_curr
+            return f"Converted Amount: {result:,.2f}"
+        
+        elif calc_id == "percentage_change":
+            old_val = float(data.get("old"))
+            new_val = float(data.get("new"))
+            change = ((new_val - old_val) / old_val) * 100
+            return f"Percentage Change: {change:.2f}%"
+        
+        elif calc_id == "percentage_of":
+            value = float(data.get("value"))
+            percent = float(data.get("percent"))
+            result = (value * percent) / 100
+            return f"{percent}% of {value} = {result:.2f}"
+        
+        elif calc_id == "area_trapezoid":
+            base1 = float(data.get("base1"))
+            base2 = float(data.get("base2"))
+            height = float(data.get("height"))
+            area = 0.5 * (base1 + base2) * height
+            return f"Area: {area:.2f} square units"
+        
+        elif calc_id == "volume_cylinder":
+            radius = float(data.get("radius"))
+            height = float(data.get("height"))
+            volume = math.pi * radius ** 2 * height
+            return f"Volume: {volume:.2f} cubic units"
+        
+        elif calc_id == "volume_cube":
+            side = float(data.get("side"))
+            volume = side ** 3
+            return f"Volume: {volume:.2f} cubic units"
+        
+        elif calc_id == "quadratic":
+            a = float(data.get("a"))
+            b = float(data.get("b"))
+            c = float(data.get("c"))
+            discriminant = b**2 - 4*a*c
+            if discriminant < 0:
+                return "No real solutions"
+            x1 = (-b + math.sqrt(discriminant)) / (2*a)
+            x2 = (-b - math.sqrt(discriminant)) / (2*a)
+            return f"Solutions: x1 = {x1:.2f}, x2 = {x2:.2f}"
+        
+        elif calc_id == "permutation":
+            n = int(float(data.get("n")))
+            r = int(float(data.get("r")))
+            result = math.factorial(n) // math.factorial(n - r)
+            return f"P({n},{r}) = {result:,}"
+        
+        elif calc_id == "combination":
+            n = int(float(data.get("n")))
+            r = int(float(data.get("r")))
+            result = math.factorial(n) // (math.factorial(r) * math.factorial(n - r))
+            return f"C({n},{r}) = {result:,}"
+        
+        elif calc_id == "distance":
+            x1 = float(data.get("x1"))
+            y1 = float(data.get("y1"))
+            x2 = float(data.get("x2"))
+            y2 = float(data.get("y2"))
+            dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            return f"Distance: {dist:.2f} units"
+        
+        elif calc_id == "slope":
+            x1 = float(data.get("x1"))
+            y1 = float(data.get("y1"))
+            x2 = float(data.get("x2"))
+            y2 = float(data.get("y2"))
+            slope = (y2 - y1) / (x2 - x1) if (x2 - x1) != 0 else "undefined"
+            return f"Slope: {slope}"
+        
+        elif calc_id == "unit_length":
+            value = float(data.get("value"))
+            from_unit = data.get("from")
+            to_unit = data.get("to")
+            conversions = {
+                "meter": 1, "km": 1000, "cm": 0.01, "mm": 0.001,
+                "mile": 1609.34, "yard": 0.9144, "foot": 0.3048, "inch": 0.0254
+            }
+            result = value * conversions.get(from_unit, 1) / conversions.get(to_unit, 1)
+            return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        
+        elif calc_id == "unit_weight":
+            value = float(data.get("value"))
+            from_unit = data.get("from")
+            to_unit = data.get("to")
+            conversions = {
+                "kg": 1, "gram": 0.001, "pound": 0.453592, "ounce": 0.0283495, "ton": 1000
+            }
+            result = value * conversions.get(from_unit, 1) / conversions.get(to_unit, 1)
+            return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        
+        elif calc_id == "unit_volume":
+            value = float(data.get("value"))
+            from_unit = data.get("from")
+            to_unit = data.get("to")
+            conversions = {
+                "liter": 1, "ml": 0.001, "gallon": 3.78541, "quart": 0.946353, "cup": 0.236588
+            }
+            result = value * conversions.get(from_unit, 1) / conversions.get(to_unit, 1)
+            return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        
+        elif calc_id == "unit_area":
+            value = float(data.get("value"))
+            from_unit = data.get("from")
+            to_unit = data.get("to")
+            conversions = {
+                "sq_meter": 1, "sq_km": 1000000, "sq_mile": 2589988, "acre": 4046.86, "hectare": 10000
+            }
+            result = value * conversions.get(from_unit, 1) / conversions.get(to_unit, 1)
+            return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        
+        elif calc_id == "unit_speed":
+            value = float(data.get("value"))
+            from_unit = data.get("from")
+            to_unit = data.get("to")
+            conversions = {
+                "mps": 1, "kmh": 0.277778, "mph": 0.44704, "knot": 0.514444
+            }
+            result = value * conversions.get(from_unit, 1) / conversions.get(to_unit, 1)
+            return f"{value} {from_unit} = {result:.4f} {to_unit}"
+        
+        elif calc_id == "grade":
+            points = float(data.get("points"))
+            total = float(data.get("total"))
+            percentage = (points / total) * 100
+            return f"Grade: {percentage:.2f}%"
+        
+        elif calc_id == "cgpa":
+            gpas = [float(x.strip()) for x in data.get("gpas", "").split(",")]
+            credits = [float(x.strip()) for x in data.get("credits", "").split(",")]
+            total_points = sum(g * c for g, c in zip(gpas, credits))
+            total_credits = sum(credits)
+            cgpa = total_points / total_credits if total_credits > 0 else 0
+            return f"CGPA: {cgpa:.2f}"
+        
+        elif calc_id == "test_score":
+            correct = float(data.get("correct"))
+            total = float(data.get("total"))
+            percentage = (correct / total) * 100
+            return f"Test Score: {percentage:.2f}%"
+        
+        elif calc_id == "final_grade":
+            current = float(data.get("current"))
+            desired = float(data.get("desired"))
+            weight = float(data.get("weight")) / 100
+            needed = (desired - current * (1 - weight)) / weight
+            return f"Grade Needed on Final: {needed:.2f}%"
+        
+        elif calc_id == "acceleration":
+            v1 = float(data.get("v1"))
+            v2 = float(data.get("v2"))
+            time = float(data.get("time"))
+            accel = (v2 - v1) / time
+            return f"Acceleration: {accel:.2f} m/s²"
+        
+        elif calc_id == "potential_energy":
+            mass = float(data.get("mass"))
+            height = float(data.get("height"))
+            g = 9.81
+            pe = mass * g * height
+            return f"Potential Energy: {pe:.2f} J"
+        
+        elif calc_id == "power_physics":
+            work = float(data.get("work", 0))
+            time = float(data.get("time", 0))
+            force = float(data.get("force", 0))
+            velocity = float(data.get("velocity", 0))
+            if work > 0 and time > 0:
+                power = work / time
+            elif force > 0 and velocity > 0:
+                power = force * velocity
+            else:
+                return "Please provide work & time or force & velocity"
+            return f"Power: {power:.2f} W"
+        
+        elif calc_id == "density":
+            mass = float(data.get("mass"))
+            volume = float(data.get("volume"))
+            density = mass / volume
+            return f"Density: {density:.2f} kg/m³"
+        
+        elif calc_id == "pressure_physics":
+            force = float(data.get("force"))
+            area = float(data.get("area"))
+            pressure = force / area
+            return f"Pressure: {pressure:.2f} Pa"
+        
+        elif calc_id == "work":
+            force = float(data.get("force"))
+            distance = float(data.get("distance"))
+            work = force * distance
+            return f"Work: {work:.2f} J"
+        
+        elif calc_id == "momentum":
+            mass = float(data.get("mass"))
+            velocity = float(data.get("velocity"))
+            momentum = mass * velocity
+            return f"Momentum: {momentum:.2f} kg·m/s"
+        
+        elif calc_id == "fuel_cost":
+            distance = float(data.get("distance"))
+            mpg = float(data.get("mpg"))
+            price = float(data.get("price"))
+            gallons = distance / mpg
+            cost = gallons * price
+            return f"Fuel Needed: {gallons:.2f} gallons, Cost: ${cost:.2f}"
+        
+        elif calc_id == "car_loan":
+            principal = float(data.get("principal"))
+            rate = float(data.get("rate")) / 100 / 12
+            months = float(data.get("months"))
+            payment = principal * (rate * (1 + rate)**months) / ((1 + rate)**months - 1)
+            return f"Monthly Payment: ${payment:,.2f}"
+        
+        elif calc_id == "recipe_scaler":
+            original_servings = float(data.get("original"))
+            new_servings = float(data.get("new"))
+            factor = new_servings / original_servings
+            return f"Scale Factor: {factor:.2f}x (multiply all ingredients by this)"
+        
+        elif calc_id == "alcohol_units":
+            drinks = float(data.get("drinks"))
+            abv = float(data.get("abv"))
+            volume = float(data.get("volume"))
+            units = (drinks * volume * abv) / 1000
+            return f"Alcohol Units: {units:.2f}"
+        
+        elif calc_id == "pregnancy_due":
+            lmp = datetime.strptime(data.get("lmp"), "%Y-%m-%d")
+            due_date = lmp + timedelta(days=280)
+            return f"Due Date: {due_date.strftime('%Y-%m-%d')}"
+        
+        elif calc_id == "ovulation":
+            cycle = float(data.get("cycle", 28))
+            ovulation_day = cycle - 14
+            return f"Ovulation Day: Day {ovulation_day:.0f} of cycle"
+        
+        elif calc_id == "sleep_hours":
+            bedtime = data.get("bedtime")
+            wake_time = data.get("wake_time")
+            if bedtime and wake_time:
+                bed = datetime.strptime(bedtime, "%H:%M")
+                wake = datetime.strptime(wake_time, "%H:%M")
+                if wake < bed:
+                    wake += timedelta(days=1)
+                hours = (wake - bed).total_seconds() / 3600
+                cycles = hours / 1.5
+                return f"Sleep: {hours:.1f} hours ({cycles:.1f} cycles)"
+            return "Please provide bedtime and wake time"
+        
+        elif calc_id == "protein_needs":
+            weight = float(data.get("weight"))
+            activity = data.get("activity", "moderate")
+            multiplier = {"sedentary": 0.8, "moderate": 1.2, "active": 1.6}.get(activity, 1.2)
+            protein = weight * multiplier
+            return f"Daily Protein: {protein:.1f} grams"
+        
+        elif calc_id == "carbs_needs":
+            calories = float(data.get("calories"))
+            carbs = calories * 0.45 / 4
+            return f"Daily Carbs: {carbs:.1f} grams"
+        
+        elif calc_id == "fiber_needs":
+            calories = float(data.get("calories"))
+            fiber = calories / 100
+            return f"Daily Fiber: {fiber:.1f} grams"
+        
+        elif calc_id == "flooring":
+            length = float(data.get("length"))
+            width = float(data.get("width"))
+            area = length * width
+            waste = float(data.get("waste", 10)) / 100
+            total = area * (1 + waste)
+            return f"Flooring Needed: {total:.2f} sq units (including {waste*100:.0f}% waste)"
+        
+        elif calc_id == "tile_needed":
+            length = float(data.get("length"))
+            width = float(data.get("width"))
+            tile_size = float(data.get("tile_size"))
+            area = length * width
+            tiles = math.ceil(area / (tile_size ** 2))
+            return f"Tiles Needed: {tiles} ({tiles * tile_size ** 2:.2f} sq units)"
+        
+        elif calc_id == "concrete":
+            length = float(data.get("length"))
+            width = float(data.get("width"))
+            depth = float(data.get("depth"))
+            volume = length * width * depth
+            cubic_yards = volume / 27
+            return f"Concrete Needed: {cubic_yards:.2f} cubic yards"
+        
+        elif calc_id == "electricity_cost":
+            power = float(data.get("power"))
+            hours = float(data.get("hours"))
+            rate = float(data.get("rate"))
+            cost = (power / 1000) * hours * rate
+            return f"Cost: ${cost:.2f}"
+        
+        elif calc_id == "age_difference":
+            dob1 = datetime.strptime(data.get("dob1"), "%Y-%m-%d")
+            dob2 = datetime.strptime(data.get("dob2"), "%Y-%m-%d")
+            diff = abs((dob2 - dob1).days)
+            years = diff / 365.25
+            return f"Age Difference: {diff} days ({years:.2f} years)"
+        
+        elif calc_id == "next_birthday":
+            dob = datetime.strptime(data.get("dob"), "%Y-%m-%d")
+            today = datetime.today()
+            next_birthday = datetime(today.year, dob.month, dob.day)
+            if next_birthday < today:
+                next_birthday = datetime(today.year + 1, dob.month, dob.day)
+            days = (next_birthday - today).days
+            return f"Days until next birthday: {days}"
+        
+        elif calc_id == "work_days":
+            start = datetime.strptime(data.get("start"), "%Y-%m-%d")
+            end = datetime.strptime(data.get("end"), "%Y-%m-%d")
+            days = 0
+            current = start
+            while current <= end:
+                if current.weekday() < 5:
+                    days += 1
+                current += timedelta(days=1)
+            return f"Work Days: {days}"
+        
+        elif calc_id == "binary":
+            num = int(float(data.get("number")))
+            return f"Binary: {bin(num)[2:]}"
+        
+        elif calc_id == "hex":
+            num = int(float(data.get("number")))
+            return f"Hexadecimal: {hex(num)[2:].upper()}"
+        
+        elif calc_id == "octal":
+            num = int(float(data.get("number")))
+            return f"Octal: {oct(num)[2:]}"
+        
+        elif calc_id == "prime_check":
+            num = int(float(data.get("number")))
+            if num < 2:
+                return f"{num} is not prime"
+            for i in range(2, int(math.sqrt(num)) + 1):
+                if num % i == 0:
+                    return f"{num} is not prime"
+            return f"{num} is prime"
+        
+        elif calc_id == "fibonacci":
+            n = int(float(data.get("n")))
+            if n < 0:
+                return "Error: n must be non-negative"
+            fib = [0, 1]
+            for i in range(2, n + 1):
+                fib.append(fib[i-1] + fib[i-2])
+            return f"Fibonacci({n}): {fib[:n+1]}"
+        
+        elif calc_id == "random_number":
+            min_val = int(float(data.get("min", 1)))
+            max_val = int(float(data.get("max", 100)))
+            import random
+            result = random.randint(min_val, max_val)
+            return f"Random Number: {result}"
+        
+        elif calc_id == "median":
+            numbers = sorted([float(x.strip()) for x in data.get("numbers", "").split(",")])
+            n = len(numbers)
+            if n == 0:
+                return "No numbers provided"
+            if n % 2 == 0:
+                median = (numbers[n//2 - 1] + numbers[n//2]) / 2
+            else:
+                median = numbers[n//2]
+            return f"Median: {median:.2f}"
+        
+        elif calc_id == "mode":
+            numbers = [float(x.strip()) for x in data.get("numbers", "").split(",")]
+            from collections import Counter
+            counter = Counter(numbers)
+            max_count = max(counter.values())
+            modes = [k for k, v in counter.items() if v == max_count]
+            return f"Mode: {modes}"
+        
+        elif calc_id == "standard_deviation":
+            numbers = [float(x.strip()) for x in data.get("numbers", "").split(",")]
+            mean = sum(numbers) / len(numbers)
+            variance = sum((x - mean) ** 2 for x in numbers) / len(numbers)
+            std_dev = math.sqrt(variance)
+            return f"Standard Deviation: {std_dev:.2f}"
+        
+        elif calc_id == "variance":
+            numbers = [float(x.strip()) for x in data.get("numbers", "").split(",")]
+            mean = sum(numbers) / len(numbers)
+            variance = sum((x - mean) ** 2 for x in numbers) / len(numbers)
+            return f"Variance: {variance:.2f}"
+        
+        else:
+            return "Calculator not yet implemented"
+    
+    except Exception as e:
+        return f"Error: {str(e)}"
 
-
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
-    context = {
-        "age_result": None,
-        "total_days": None,
-        "next_birthday_days": None,
-        "next_birthday_date": None,
-        "birth_weekday": None,
-        "error": None,
-    }
+    return render_template("index.html", calculators=CALCULATORS)
 
-    if request.method == "POST":
-        dob = request.form.get("dob", "").strip()
-        if not dob:
-            context["error"] = "Please enter your date of birth."
-            return render_template("index.html", **context)
-
-        try:
-            birth_date = datetime.strptime(dob, "%Y-%m-%d").date()
-        except ValueError:
-            context["error"] = "Invalid date format. Use yyyy-mm-dd."
-            return render_template("index.html", **context)
-
-        today = date.today()
-        if birth_date > today:
-            context["error"] = "Date of birth cannot be in the future."
-            return render_template("index.html", **context)
-
-        years, months, days = compute_age(birth_date, today)
-        total_days = (today - birth_date).days
-        nb_date, nb_days = next_birthday_info(birth_date, today)
-        weekday = calendar.day_name[birth_date.weekday()]
-
-        context.update({
-            "age_result": f"{years} years, {months} months, {days} days",
-            "total_days": f"{total_days} days (~{total_days*24} hours)",
-            "next_birthday_days": nb_days,
-            "next_birthday_date": nb_date.isoformat(),
-            "birth_weekday": weekday,
-        })
-
-    return render_template("index.html", **context)
-
+@app.route("/calculate", methods=["POST"])
+def calculate_route():
+    data = request.json
+    calc_id = data.get("calc_id")
+    result = calculate(calc_id, data.get("data", {}))
+    return jsonify({"result": result})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
