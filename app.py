@@ -15,37 +15,39 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# Database configuration
+# ---------- DATABASE CONFIG (FIXED) ----------
+# No fallback defaults — forces Vercel to use Railway
 DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', 'DB_PASSWORD'),
-    'database': os.getenv('DB_NAME', 'calcmaster'),
-    'port': int(os.getenv('DB_PORT', 3306))
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME'),
+    'port': int(os.getenv('DB_PORT'))
 }
 
 def get_db_connection():
-    """Get database connection"""
+    """Create a new database connection"""
     try:
-        connection = mysql.connector.connect(**DB_CONFIG)
-        return connection
+        conn = mysql.connector.connect(**DB_CONFIG)
+        return conn
     except mysql.connector.Error as e:
-        print(f"Database connection error: {e}")
+        print("MySQL connection error:", e)
         return None
     except Exception as e:
-        print(f"Database connection failed: {e}")
+        print("Unexpected DB error:", e)
         return None
 
+# ---------- INIT DATABASE TABLES ----------
 def init_database():
-    """Initialize database tables"""
     try:
         connection = get_db_connection()
         if not connection:
+            print("❌ Database connection failed during initialization")
             return False
-        
+
         cursor = connection.cursor()
-        
-        # Create feedback table
+
+        # Feedback table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS feedback (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,8 +61,8 @@ def init_database():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
-        # Create contact table
+
+        # Contact table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS contact (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -71,23 +73,60 @@ def init_database():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
+
         connection.commit()
         cursor.close()
         connection.close()
-        print("Database tables initialized successfully")
+
+        print("✅ Database tables initialized successfully")
         return True
-        
+
     except mysql.connector.Error as e:
-        print(f"Database initialization error: {e}")
+        print("❌ Database initialization error:", e)
         return False
 
-# Initialize database on startup (if available)
+
+# Run initialization at startup
 try:
     init_database()
 except Exception as e:
-    print(f"Database initialization failed: {e}")
-    print("Running in fallback mode - feedback will be logged to console")
+    print("❌ Table init failed:", e)
+    print("⚠ Running in fallback mode. Feedback will not be stored.")
+
+
+# -----------------------------------------------------------
+# EXAMPLE FEEDBACK ROUTE (Add this after your init section)
+# -----------------------------------------------------------
+from flask import request
+
+@app.route("/feedback", methods=["POST"])
+def save_feedback():
+    name = request.form.get("name")
+    email = request.form.get("email")
+    subject = request.form.get("subject")
+    message = request.form.get("message")
+    rating = request.form.get("rating")
+    feedback_type = request.form.get("feedback_type")
+    wants_updates = request.form.get("wants_updates") == "on"
+
+    connection = get_db_connection()
+    if not connection:
+        return "Database not connected", 500
+
+    cursor = connection.cursor()
+
+    sql = """
+        INSERT INTO feedback (name, email, subject, message, rating, feedback_type, wants_updates)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+
+    cursor.execute(sql, (name, email, subject, message, rating, feedback_type, wants_updates))
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    return "Feedback saved successfully!"
 
 # Define all 100 calculators with their metadata
 CALCULATORS = [
