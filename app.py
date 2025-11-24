@@ -821,12 +821,6 @@ def calculate(calc_id, data):
             needed = (desired - current * (1 - weight)) / weight
             return f"Grade Needed on Final: {needed:.2f}%"
         
-        elif calc_id == "acceleration":
-            v1 = float(data.get("v1"))
-            v2 = float(data.get("v2"))
-            time = float(data.get("time"))
-            accel = (v2 - v1) / time
-            return f"Acceleration: {accel:.2f} m/s²"
         
         elif calc_id == "potential_energy":
             mass = float(data.get("mass"))
