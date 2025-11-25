@@ -356,7 +356,23 @@ def calculate(calc_id, data):
             cycles = hours / 1.5
             return f"Sleep Duration: {hours:.1f} hours ({cycles:.1f} sleep cycles)"
         
-
+        elif calc_id == "pregnancy_due":
+            lmp_str = data.get("lmp")
+            if not lmp_str:
+                return "Error: Please provide last menstrual period date"
+            lmp = datetime.strptime(lmp_str, "%Y-%m-%d")
+            due_date = lmp + timedelta(days=280)
+            return f"Due Date: {due_date.strftime('%B %d, %Y')}"
+        
+        elif calc_id == "ovulation":
+            lmp_str = data.get("lmp")
+            if not lmp_str:
+                return "Error: Please provide last menstrual period date"
+            lmp = datetime.strptime(lmp_str, "%Y-%m-%d")
+            cycle_length = int(float(data.get("cycle_length", 28)))
+            ovulation = lmp + timedelta(days=cycle_length - 14)
+            return f"Ovulation Date: {ovulation.strftime('%B %d, %Y')}"
+        
         elif calc_id == "alcohol_units":
             volume = float(data.get("volume"))
             abv = float(data.get("abv"))
@@ -1201,16 +1217,21 @@ def calculate_route():
     result = calculate(calc_id, data.get("data", {}))
     return jsonify({"result": result})
 
-# ============================================================
-# GOOGLE FORM FEEDBACK PLACEHOLDER
-# ============================================================
-# Replace the URL below with your actual Google Form URL
-# To create a Google Form:
-# 1. Go to https://forms.google.com
-# 2. Create a new form with fields for: name, email, rating, feedback type, message
-# 3. Click "Send" and copy the form link
-# 4. Replace the URL in the HTML template's feedback section
-# ============================================================
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.route("/privacy-policy")
+def privacy_policy():
+    return render_template("privacy.html")
+
+@app.route("/terms-and-conditions")
+def terms():
+    return render_template("terms.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(deb
