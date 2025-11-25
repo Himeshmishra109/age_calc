@@ -449,7 +449,7 @@ def calculate(calc_id, data):
         elif calc_id == "discount":
             price, error = get_float_value(data, "price")
             if error: return error
-            discount, error = get_float_value(data, "discount")
+            discount, error = get_float_value(data, "discount (%)")
             if error: return error
             if price <= 0:
                 return "Error: Original price must be positive"
@@ -600,6 +600,7 @@ def calculate(calc_id, data):
             return f"{year} is {'a leap year' if is_leap else 'not a leap year'}"
         
         elif calc_id == "body_fat":
+            height = float(data.get("height"))
             weight = float(data.get("weight"))
             waist = float(data.get("waist", 0))
             gender = data.get("gender", "male")
@@ -921,10 +922,6 @@ def calculate(calc_id, data):
             protein = weight * multiplier
             return f"Daily Protein: {protein:.1f} grams"
         
-        elif calc_id == "carbs_needs":
-            calories = float(data.get("calories"))
-            carbs = calories * 0.45 / 4
-            return f"Daily Carbs: {carbs:.1f} grams"
         
         elif calc_id == "fiber_needs":
             calories = float(data.get("calories"))
@@ -1658,22 +1655,6 @@ def calculate(calc_id, data):
             total = fv_initial + fv_monthly
             return f"Investment Value: ${total:,.2f} after {years} years"
         
-        elif calc_id == "body_fat":
-            gender = data.get("gender")
-            age, error = get_float_value(data, "age")
-            if error: return error
-            weight, error = get_float_value(data, "weight")
-            if error: return error
-            height, error = get_float_value(data, "height")
-            if error: return error
-            # Using BMI-based estimation (simplified)
-            height_m = height / 100
-            bmi = weight / (height_m ** 2)
-            if gender == "male":
-                body_fat = (1.20 * bmi) + (0.23 * age) - 16.2
-            else:
-                body_fat = (1.20 * bmi) + (0.23 * age) - 5.4
-            return f"Estimated Body Fat: {max(0, body_fat):.1f}%"
         
         elif calc_id == "ideal_weight":
             gender = data.get("gender")
