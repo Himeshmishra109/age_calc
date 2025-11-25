@@ -887,12 +887,6 @@ def calculate(calc_id, data):
             factor = new_servings / original_servings
             return f"Scale Factor: {factor:.2f}x (multiply all ingredients by this)"
         
-        elif calc_id == "alcohol_units":
-            drinks = float(data.get("drinks"))
-            abv = float(data.get("abv"))
-            volume = float(data.get("volume"))
-            units = (drinks * volume * abv) / 1000
-            return f"Alcohol Units: {units:.2f}"
         
         elif calc_id == "pregnancy_due":
             lmp_str = data.get("lmp")
