@@ -873,17 +873,6 @@
                     <input type="number" id="c" step="0.01">
                 </div>
             `;
-        } else if (calcId === 'discount') {
-            html += `
-                <div class="form-group">
-                    <label>Original Price ($):</label>
-                    <input type="number" id="original" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>Discount Percentage (%):</label>
-                    <input type="number" id="discount" step="0.01" required>
-                </div>
-            `;
         } else if (calcId === 'bmr') {
             html += `
                 <div class="form-group">
@@ -1878,28 +1867,6 @@
                 <div class="form-group">
                     <label>Years:</label>
                     <input type="number" id="years" required>
-                </div>
-            `;
-        } else if (calcId === 'body_fat') {
-            html += `
-                <div class="form-group">
-                    <label>Gender:</label>
-                    <select id="gender" required>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Age:</label>
-                    <input type="number" id="age" required>
-                </div>
-                <div class="form-group">
-                    <label>Weight (kg):</label>
-                    <input type="number" id="weight" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label>Height (cm):</label>
-                    <input type="number" id="height" step="0.1" required>
                 </div>
             `;
         } else if (calcId === 'ideal_weight') {
