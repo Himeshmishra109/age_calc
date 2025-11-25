@@ -180,9 +180,9 @@
         width:100%; height:100%; background:rgba(0,0,0,0.5); 
       }
       .modal-content { 
-        background:#fff; margin:5% auto; padding:30px; width:80%; 
-        max-width:800px; border-radius:15px; position:relative; 
-        max-height:80vh; overflow-y:auto;
+        background:#fff; margin:5% auto; padding:30px; width:85%; 
+        max-width:900px; border-radius:15px; position:relative; 
+        max-height:85vh; overflow-y:auto;
       }
       .close { 
         position:absolute; right:20px; top:15px; font-size:28px; 
@@ -356,42 +356,16 @@
                 <h2>⭐ Your Feedback Matters</h2>
                 <p style="text-align:center; color:#666; margin-bottom:30px;">Help us improve CalcMaster Pro with your valuable feedback!</p>
                 
-                <form onsubmit="sendFeedback(event)" style="display:flex; flex-direction:column; gap:20px;">
-                    <div style="text-align:center;">
-                        <label style="display:block; margin-bottom:10px; font-weight:600;">Rate Your Experience:</label>
-                        <div class="rating-stars" id="feedbackRating" style="display:flex; justify-content:center; gap:5px; margin-bottom:20px;">
-                            <span class="star" data-rating="1" onclick="setRating(1)" style="font-size:2em; cursor:pointer; color:#ddd;">⭐</span>
-                            <span class="star" data-rating="2" onclick="setRating(2)" style="font-size:2em; cursor:pointer; color:#ddd;">⭐</span>
-                            <span class="star" data-rating="3" onclick="setRating(3)" style="font-size:2em; cursor:pointer; color:#ddd;">⭐</span>
-                            <span class="star" data-rating="4" onclick="setRating(4)" style="font-size:2em; cursor:pointer; color:#ddd;">⭐</span>
-                            <span class="star" data-rating="5" onclick="setRating(5)" style="font-size:2em; cursor:pointer; color:#ddd;">⭐</span>
-                        </div>
-                    </div>
-                    
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                        <input type="text" id="feedbackName" placeholder="Your Name (Optional)" style="padding:10px; border:2px solid #ddd; border-radius:5px;">
-                        <input type="email" id="feedbackEmail" placeholder="Your Email (Optional)" style="padding:10px; border:2px solid #ddd; border-radius:5px;">
-                    </div>
-                    
-                    <select id="feedbackType" required style="padding:10px; border:2px solid #ddd; border-radius:5px;">
-                        <option value="">Select Feedback Type</option>
-                        <option value="compliment">Compliment</option>
-                        <option value="suggestion">Suggestion</option>
-                        <option value="bug">Bug Report</option>
-                        <option value="feature">Feature Request</option>
-                        <option value="usability">Usability Issue</option>
-                        <option value="other">Other</option>
-                    </select>
-                    
-                    <textarea id="feedbackMessage" placeholder="Share your thoughts, suggestions, or report any issues..." rows="5" required style="padding:10px; border:2px solid #ddd; border-radius:5px; resize:vertical;"></textarea>
-                    
-                    <label style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="feedbackUpdates">
-                        I'd like to receive updates about new calculators and features
-                    </label>
-                    
-                    <button type="submit" class="submit-button">Submit Feedback</button>
-                </form>
+                <!-- Google Form Embedded -->
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdiyvBOXfMCDcoB7lHCrmDBehyoZN23qluoqJYwCVQSV03PJw/viewform?embedded=true" 
+                        width="100%" 
+                        height="800" 
+                        frameborder="0" 
+                        marginheight="0" 
+                        marginwidth="0"
+                        style="border-radius:10px;">
+                    Loading feedback form…
+                </iframe>
             </div>
         </div>
 
@@ -550,71 +524,6 @@
         document.getElementById('feedback-modal').style.display = 'block';
     }
 
-    let selectedRating = 0;
-    
-    function setRating(rating) {
-        selectedRating = rating;
-        const stars = document.querySelectorAll('.star');
-        stars.forEach((star, index) => {
-            if (index < rating) {
-                star.style.color = '#ffd700';
-            } else {
-                star.style.color = '#ddd';
-            }
-        });
-    }
-
-    function sendFeedback(event) {
-        event.preventDefault();
-        
-        if (selectedRating === 0) {
-            alert('Please select a rating before submitting feedback.');
-            return;
-        }
-        
-        const form = event.target;
-        const data = {
-            name: document.getElementById('feedbackName').value || 'Anonymous',
-            email: document.getElementById('feedbackEmail').value || 'No email provided',
-            rating: selectedRating,
-            type: document.getElementById('feedbackType').value,
-            message: document.getElementById('feedbackMessage').value,
-            updates: document.getElementById('feedbackUpdates').checked
-        };
-        
-        // Show loading
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Submitting...';
-        submitBtn.disabled = true;
-        
-        fetch('/feedback', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('✅ Thank you for your feedback! It has been sent to himeshm548@gmail.com. We appreciate your input!');
-                form.reset();
-                selectedRating = 0;
-                setRating(0);
-                closeModal('feedback-modal');
-            } else {
-                alert('Error: ' + result.message);
-            }
-        })
-        .catch(error => {
-            alert('Error submitting feedback. Please try again.');
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        });
-    }
-
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
     }
@@ -623,43 +532,24 @@
         event.preventDefault();
         
         const form = event.target;
-        const formData = new FormData(form);
-        const data = {
-            name: form.querySelector('input[type="text"]').value,
-            email: form.querySelector('input[type="email"]').value,
-            subject: 'Quick Contact',
-            message: form.querySelector('textarea').value
-        };
+        const name = form.querySelector('input[type="text"]').value;
+        const email = form.querySelector('input[type="email"]').value;
+        const message = form.querySelector('textarea').value;
         
-        // Show loading
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
+        // Create mailto link
+        const subject = encodeURIComponent('CalcMaster Pro - Contact Message');
+        const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+        const mailtoLink = `mailto:himeshm548@gmail.com?subject=${subject}&body=${body}`;
         
-        fetch('/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('✅ Thank you! Your message has been sent to himeshm548@gmail.com. We\'ll get back to you within 24 hours.');
-                form.reset();
-                closeModal('contact-modal');
-            } else {
-                alert('Error: ' + result.message);
-            }
-        })
-        .catch(error => {
-            alert('Error sending message. Please try again.');
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        });
+        // Open email client
+        window.location.href = mailtoLink;
+        
+        // Show confirmation and close modal
+        setTimeout(() => {
+            alert('✅ Your email client has been opened. Please send the email to complete your message.');
+            form.reset();
+            closeModal('contact-modal');
+        }, 500);
     }
 
     // Close modals when clicking outside
