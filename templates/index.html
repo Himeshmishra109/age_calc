@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>CalcMaster Pro - 100+ Professional Calculators</title>
+    <meta name="description" content="Free online calculator tools for age, BMI, finance, math, physics, and more. Calculate instantly with our collection of easy-to-use calculators for everyday needs."/>
+    <title>CalcMaster Pro - Free Online Calculators</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
       /* Enhanced inline styles for better theme */
@@ -241,12 +242,13 @@
                 </nav>
             </div>
             <div class="hero-banner">
-                <h2>🚀 100+ Professional Calculators</h2>
-                <p>Mathematics • Finance • Physics • Health • Engineering & More</p>
+                <h2>🚀 Free Online Calculators</h2>
+                <p>Mathematics • Finance • Physics • Health • Date & Time • Unit Conversions</p>
                 <div class="feature-badges">
                     <span class="badge">✨ Instant Results</span>
                     <span class="badge">🔒 Secure & Private</span>
                     <span class="badge">📱 Mobile Friendly</span>
+                    <span class="badge">💯 100% Free</span>
                 </div>
             </div>
         </header>
@@ -337,14 +339,11 @@
                         <small>Latest updates & tips</small>
                     </div>
                 </div>
-                <div style="background:#f8f9fa; padding:20px; border-radius:10px; margin-top:20px;">
-                    <h3>Quick Message</h3>
-                    <form onsubmit="sendMessage(event)" style="display:flex; flex-direction:column; gap:15px;">
-                        <input type="text" placeholder="Your Name" required style="padding:10px; border:2px solid #ddd; border-radius:5px;">
-                        <input type="email" placeholder="Your Email" required style="padding:10px; border:2px solid #ddd; border-radius:5px;">
-                        <textarea placeholder="Your Message" rows="4" required style="padding:10px; border:2px solid #ddd; border-radius:5px; resize:vertical;"></textarea>
-                        <button type="submit" class="submit-button">Send Message</button>
-                    </form>
+                <div style="text-align:center; margin-top:30px; padding:20px; background:#f8f9fa; border-radius:10px;">
+                    <p style="color:#666; margin-bottom:15px;">For detailed inquiries, please visit our contact page:</p>
+                    <a href="/contact" style="display:inline-block; padding:12px 30px; background:#667eea; color:white; text-decoration:none; border-radius:8px; font-weight:600;">
+                        Go to Contact Page →
+                    </a>
                 </div>
             </div>
         </div>
@@ -385,10 +384,11 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul class="footer-links">
-                        <li><a href="#" onclick="showHome()">All Calculators</a></li>
-                        <li><a href="#" onclick="showAbout()">About Us</a></li>
-                        <li><a href="#" onclick="showContact()">Contact</a></li>
-                        <li><a href="#" onclick="alert('Privacy: We respect your privacy and do not collect personal data.')">Privacy Policy</a></li>
+                        <li><a href="/">All Calculators</a></li>
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="/terms-and-conditions">Terms & Conditions</a></li>
                     </ul>
                 </div>
                 
@@ -405,7 +405,7 @@
                 <div class="footer-section">
                     <h4>Support</h4>
                     <ul class="footer-links">
-                        <li><a href="mailto:support@calcmaster.pro">Email Support</a></li>
+                        <li><a href="mailto:himeshm548@gmail.com">Email Support</a></li>
                         <li><a href="#" onclick="showContact()">Report Bug</a></li>
                         <li><a href="#" onclick="showContact()">Feature Request</a></li>
                         <li><a href="#" onclick="alert('Help: Use the search box to find calculators quickly, or browse by category.')">Help Center</a></li>
@@ -414,7 +414,13 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2024 CalcMaster Pro. All rights reserved. | Made with ❤️ for calculation enthusiasts worldwide.</p>
+                <p>&copy; 2025 CalcMaster Pro. All rights reserved. | Made with ❤️ for calculation enthusiasts worldwide.</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">
+                    <a href="/about" style="color: #fff; margin: 0 10px;">About</a> | 
+                    <a href="/contact" style="color: #fff; margin: 0 10px;">Contact</a> | 
+                    <a href="/privacy-policy" style="color: #fff; margin: 0 10px;">Privacy</a> | 
+                    <a href="/terms-and-conditions" style="color: #fff; margin: 0 10px;">Terms</a>
+                </p>
             </div>
         </footer>
     </div>
