@@ -213,17 +213,81 @@
       }
       
       /* Mobile Responsive */
-      @media (max-width: 768px) {
-        .container { margin:10px; }
-        .header-top { flex-direction:column; gap:15px; padding:20px; }
-        .top-nav { justify-content:center; }
-        .hero-banner { padding:30px 20px; }
-        .hero-banner h2 { font-size:2em; }
-        .feature-badges { flex-direction:column; align-items:center; }
-        .main-section { padding:20px; }
-        .calculator-grid { grid-template-columns:1fr; }
-        .modal-content { width:95%; margin:10% auto; padding:20px; }
-      }
+      /* Mobile Responsive */
+@media (max-width: 768px) {
+
+    .container { 
+        margin: 10px; 
+        border-radius: 15px;
+    }
+
+    /* 🔹 Header Adjust */
+    .header-top { 
+        flex-direction: column; 
+        gap: 15px; 
+        padding: 20px; 
+    }
+
+    .hero-banner { 
+        padding: 30px 20px; 
+        text-align: center;
+    }
+
+    .hero-banner h2 { 
+        font-size: 1.8em; 
+    }
+
+    .feature-badges { 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 10px;
+    }
+
+    .main-section { 
+        padding: 20px; 
+    }
+
+    .calculator-grid { 
+        grid-template-columns: 1fr; 
+        padding: 15px;
+    }
+
+    .modal-content { 
+        width: 95%; 
+        margin: 15% auto; 
+        padding: 20px; 
+    }
+
+
+    /* 🔥 FIX NAVIGATION CUTTING ISSUE */
+    .nav-links {
+        display: flex;
+        overflow-x: auto;     /* allows horizontal scrolling */
+        white-space: nowrap;
+        gap: 10px;
+        width: 100%;
+        padding: 8px 5px;
+        justify-content: flex-start;
+        scrollbar-width: none; /* hide scrollbar firefox */
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none; /* hide scrollbar chrome */
+    }
+
+    .nav-link {
+        font-size: 0.85em;
+        padding: 8px 14px;
+        border-radius: 20px;
+    }
+
+    .nav-brand h1 {
+        font-size: 1.6em;
+        text-align: center;
+        width: 100%;
+    }
+}
+
     </style>
 </head>
 <body>
