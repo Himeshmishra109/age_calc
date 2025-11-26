@@ -429,7 +429,7 @@
                     <p>Your trusted partner for all calculation needs. Professional, accurate, and always free.</p>
                     <div class="social-links">
                         <a href="https://wa.me/919876543210"class="social-link">📩 Chat on WhatsApp</a>
-                        <a href="www.linkedin.com/in/himeshmishra2007"class="social-link">💼 LinkedIn</a>
+                        <a href="https://www.linkedin.com/in/himeshmishra2007"class="social-link">💼LinkedIn</a>
                     </div>
                 </div>
                 
@@ -705,10 +705,10 @@
         } 
         
             else if (calcId === 'area-converter') {
-    html += `
-        <div class="form-group">
-            <label>Enter Value:</label>
-            <input type="number" id="areaValue" step="0.01" required>
+            html += `
+                <div class="form-group">
+                <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" required>
         </div>
 
         <div class="form-group">
@@ -1176,22 +1176,7 @@
                     <input type="number" id="percent" step="0.01" required>
                 </div>
             `;
-        } else if (calcId === 'mortgage') {
-            html += `
-                <div class="form-group">
-                    <label>Loan Amount ($):</label>
-                    <input type="number" id="principal" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>Interest Rate (%):</label>
-                    <input type="number" id="rate" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>Loan Term (months):</label>
-                    <input type="number" id="months" required>
-                </div>
-            `;
-        } else if (calcId === 'investment_return') {
+        }  else if (calcId === 'investment_return') {
             html += `
                 <div class="form-group">
                     <label>Principal ($):</label>
@@ -1395,7 +1380,502 @@
                     </select>
                 </div>
             `;
-        } else if (calcId === 'sleep_hours') {
+        } 
+        
+        else if (calcId === 'carbon_footprint') {
+    html += `
+        <div class="form-group">
+            <label>Electricity Usage (kWh/year):</label>
+            <input type="number" id="electricity" step="0.01" placeholder="e.g., 1200" required>
+        </div>
+
+        <div class="form-group">
+            <label>Natural Gas Usage (Therms/year):</label>
+            <input type="number" id="gas" step="0.01" placeholder="e.g., 450" required>
+        </div>
+
+        <div class="form-group">
+            <label>Car Travel (Miles/year):</label>
+            <input type="number" id="car_miles" step="0.01" placeholder="e.g., 8000" required>
+        </div>
+
+        <div class="form-group">
+            <label>Number of Flights per Year:</label>
+            <input type="number" id="flights" step="1" placeholder="e.g., 3" required>
+        </div>
+    `;
+}
+
+        else if (calcId === 'correlation') {
+    html += `
+        <div class="form-group">
+            <label>Enter X Values (comma-separated):</label>
+            <input type="text" id="x_values" placeholder="Example: 2, 4, 6, 8, 10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Enter Y Values (comma-separated):</label>
+            <input type="text" id="y_values" placeholder="Example: 3, 5, 7, 9, 11" required>
+        </div>
+
+        <p class="note">⚠ X and Y must have the same number of values.</p>
+    `;
+}
+
+        else if (calcId === 'unit_energy') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter energy amount" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="joules">Joules (J)</option>
+                <option value="kilojoules">Kilojoules (kJ)</option>
+                <option value="calories">Calories (cal)</option>
+                <option value="kilocalories">Kilocalories (kcal)</option>
+                <option value="watt_hours">Watt-hours (Wh)</option>
+                <option value="kilowatt_hours">Kilowatt-hours (kWh)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="joules">Joules (J)</option>
+                <option value="kilojoules">Kilojoules (kJ)</option>
+                <option value="calories">Calories (cal)</option>
+                <option value="kilocalories">Kilocalories (kcal)</option>
+                <option value="watt_hours">Watt-hours (Wh)</option>
+                <option value="kilowatt_hours">Kilowatt-hours (kWh)</option>
+            </select>
+        </div>
+    `;
+}
+
+else if (calcId === 'lease_vs_buy') {
+    html += `
+        <div class="form-group">
+            <label>Monthly Lease Payment ($):</label>
+            <input type="number" id="lease_payment" step="0.01" placeholder="e.g., 250" required>
+        </div>
+
+        <div class="form-group">
+            <label>Lease Term (Months):</label>
+            <input type="number" id="lease_months" placeholder="e.g., 36" required>
+        </div>
+
+        <div class="form-group">
+            <label>Monthly Loan Payment ($):</label>
+            <input type="number" id="loan_payment" step="0.01" placeholder="e.g., 350" required>
+        </div>
+
+        <div class="form-group">
+            <label>Loan Term (Months):</label>
+            <input type="number" id="loan_months" placeholder="e.g., 48" required>
+        </div>
+    `;
+}
+
+else if (calcId === 'unit_length') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter length" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="meters">Meters (m)</option>
+                <option value="kilometers">Kilometers (km)</option>
+                <option value="centimeters">Centimeters (cm)</option>
+                <option value="millimeters">Millimeters (mm)</option>
+                <option value="miles">Miles (mi)</option>
+                <option value="yards">Yards (yd)</option>
+                <option value="feet">Feet (ft)</option>
+                <option value="inches">Inches (in)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="meters">Meters (m)</option>
+                <option value="kilometers">Kilometers (km)</option>
+                <option value="centimeters">Centimeters (cm)</option>
+                <option value="millimeters">Millimeters (mm)</option>
+                <option value="miles">Miles (mi)</option>
+                <option value="yards">Yards (yd)</option>
+                <option value="feet">Feet (ft)</option>
+                <option value="inches">Inches (in)</option>
+            </select>
+        </div>
+    `;
+}
+        
+else if (calcId === 'unit_weight') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter weight" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="kilograms">Kilograms (kg)</option>
+                <option value="grams">Grams (g)</option>
+                <option value="milligrams">Milligrams (mg)</option>
+                <option value="pounds">Pounds (lb)</option>
+                <option value="ounces">Ounces (oz)</option>
+                <option value="tons">Tons (t)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="kilograms">Kilograms (kg)</option>
+                <option value="grams">Grams (g)</option>
+                <option value="milligrams">Milligrams (mg)</option>
+                <option value="pounds">Pounds (lb)</option>
+                <option value="ounces">Ounces (oz)</option>
+                <option value="tons">Tons (t)</option>
+            </select>
+        </div>
+    `;
+}
+
+
+else if (calcId === 'unit_volume') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter volume" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="liters">Liters (L)</option>
+                <option value="milliliters">Milliliters (mL)</option>
+                <option value="gallons">Gallons (gal)</option>
+                <option value="quarts">Quarts (qt)</option>
+                <option value="pints">Pints (pt)</option>
+                <option value="cups">Cups</option>
+                <option value="fluid_ounces">Fluid Ounces (fl oz)</option>
+                <option value="cubic_meters">Cubic Meters (m³)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="liters">Liters (L)</option>
+                <option value="milliliters">Milliliters (mL)</option>
+                <option value="gallons">Gallons (gal)</option>
+                <option value="quarts">Quarts (qt)</option>
+                <option value="pints">Pints (pt)</option>
+                <option value="cups">Cups</option>
+                <option value="fluid_ounces">Fluid Ounces (fl oz)</option>
+                <option value="cubic_meters">Cubic Meters (m³)</option>
+            </select>
+        </div>
+    `;
+}
+
+else if (calcId === 'tree_offset') {
+    html += `
+        <div class="form-group">
+            <label>Enter CO₂ Emissions (kg per year):</label>
+            <input type="number" id="co2" step="0.01" placeholder="e.g., 1200" required>
+        </div>
+        <p class="note">🌱 Approx. 1 tree offsets ~21.77 kg CO₂ per year.</p>
+    `;
+}
+
+
+else if (calcId === 'tire_size') {
+    html += `
+        <div class="form-group">
+            <label>Tire Width (mm):</label>
+            <input type="number" id="width" step="0.01" placeholder="e.g., 205" required>
+        </div>
+
+        <div class="form-group">
+            <label>Aspect Ratio (%):</label>
+            <input type="number" id="aspect" step="0.01" placeholder="e.g., 55" required>
+        </div>
+
+        <div class="form-group">
+            <label>Rim Diameter (inches):</label>
+            <input type="number" id="diameter" step="0.01" placeholder="e.g., 16" required>
+        </div>
+
+        <p class="note">📌 Formula uses: total diameter = rim diameter × 25.4 + 2 × sidewall height.</p>
+    `;
+}
+
+
+else if (calcId === 'time_zone') {
+    html += `
+        <div class="form-group">
+            <label>Select Time:</label>
+            <input type="time" id="time" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Time Zone (UTC Offset):</label>
+            <select id="from_offset" required>
+                <option value="-12">UTC -12</option>
+                <option value="-11">UTC -11</option>
+                <option value="-10">UTC -10</option>
+                <option value="-9">UTC -9</option>
+                <option value="-8">UTC -8</option>
+                <option value="-7">UTC -7</option>
+                <option value="-6">UTC -6</option>
+                <option value="-5">UTC -5</option>
+                <option value="-4">UTC -4</option>
+                <option value="-3">UTC -3</option>
+                <option value="-2">UTC -2</option>
+                <option value="-1">UTC -1</option>
+                <option value="0" selected>UTC 0</option>
+                <option value="1">UTC +1</option>
+                <option value="2">UTC +2</option>
+                <option value="3">UTC +3</option>
+                <option value="3.5">UTC +3:30</option>
+                <option value="4">UTC +4</option>
+                <option value="4.5">UTC +4:30</option>
+                <option value="5">UTC +5</option>
+                <option value="5.5">UTC +5:30 (India)</option>
+                <option value="6">UTC +6</option>
+                <option value="7">UTC +7</option>
+                <option value="8">UTC +8</option>
+                <option value="9">UTC +9</option>
+                <option value="9.5">UTC +9:30</option>
+                <option value="10">UTC +10</option>
+                <option value="11">UTC +11</option>
+                <option value="12">UTC +12</option>
+                <option value="13">UTC +13</option>
+                <option value="14">UTC +14</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Time Zone (UTC Offset):</label>
+            <select id="to_offset" required>
+                <option value="-12">UTC -12</option>
+                <option value="-11">UTC -11</option>
+                <option value="-10">UTC -10</option>
+                <option value="-9">UTC -9</option>
+                <option value="-8">UTC -8</option>
+                <option value="-7">UTC -7</option>
+                <option value="-6">UTC -6</option>
+                <option value="-5">UTC -5</option>
+                <option value="-4">UTC -4</option>
+                <option value="-3">UTC -3</option>
+                <option value="-2">UTC -2</option>
+                <option value="-1">UTC -1</option>
+                <option value="0" selected>UTC 0</option>
+                <option value="1">UTC +1</option>
+                <option value="2">UTC +2</option>
+                <option value="3">UTC +3</option>
+                <option value="3.5">UTC +3:30</option>
+                <option value="4">UTC +4</option>
+                <option value="4.5">UTC +4:30</option>
+                <option value="5">UTC +5</option>
+                <option value="5.5">UTC +5:30 (India)</option>
+                <option value="6">UTC +6</option>
+                <option value="7">UTC +7</option>
+                <option value="8">UTC +8</option>
+                <option value="9">UTC +9</option>
+                <option value="9.5">UTC +9:30</option>
+                <option value="10">UTC +10</option>
+                <option value="11">UTC +11</option>
+                <option value="12">UTC +12</option>
+                <option value="13">UTC +13</option>
+                <option value="14">UTC +14</option>
+            </select>
+        </div>
+    `;
+}
+
+else if (calcId === 'unit_time') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter time value" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="seconds">Seconds (s)</option>
+                <option value="minutes">Minutes (min)</option>
+                <option value="hours">Hours (hr)</option>
+                <option value="days">Days</option>
+                <option value="weeks">Weeks</option>
+                <option value="years">Years</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="seconds">Seconds (s)</option>
+                <option value="minutes">Minutes (min)</option>
+                <option value="hours">Hours (hr)</option>
+                <option value="days">Days</option>
+                <option value="weeks">Weeks</option>
+                <option value="years">Years</option>
+            </select>
+        </div>
+    `;
+}
+
+
+else if (calcId === 'unit_speed') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter speed value" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="meters_per_second">Meters per Second (m/s)</option>
+                <option value="kilometers_per_hour">Kilometers per Hour (km/h)</option>
+                <option value="miles_per_hour">Miles per Hour (mph)</option>
+                <option value="feet_per_second">Feet per Second (ft/s)</option>
+                <option value="knots">Knots (nautical mph)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="meters_per_second">Meters per Second (m/s)</option>
+                <option value="kilometers_per_hour">Kilometers per Hour (km/h)</option>
+                <option value="miles_per_hour">Miles per Hour (mph)</option>
+                <option value="feet_per_second">Feet per Second (ft/s)</option>
+                <option value="knots">Knots (nautical mph)</option>
+            </select>
+        </div>
+    `;
+}
+
+
+else if (calcId === 'solar_panels') {
+    html += `
+        <div class="form-group">
+            <label>Monthly Electricity Bill ($):</label>
+            <input type="number" id="monthly_bill" step="0.01" placeholder="e.g., 120" required>
+        </div>
+
+        <div class="form-group">
+            <label>Electricity Rate ($ per kWh):</label>
+            <input type="number" id="rate" step="0.001" placeholder="Default: 0.12">
+        </div>
+
+        <p class="note">⚡ Assumption: Each solar panel generates approx. 1.5 kWh/day.</p>
+    `;
+}
+
+
+else if (calcId === 'unit_power') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter power value" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="watts">Watts (W)</option>
+                <option value="kilowatts">Kilowatts (kW)</option>
+                <option value="horsepower">Horsepower (HP)</option>
+                <option value="btu_per_hour">BTU/hour (BTU/hr)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="watts">Watts (W)</option>
+                <option value="kilowatts">Kilowatts (kW)</option>
+                <option value="horsepower">Horsepower (HP)</option>
+                <option value="btu_per_hour">BTU/hour (BTU/hr)</option>
+            </select>
+        </div>
+    `;
+}
+
+
+else if (calcId === 'unit_pressure') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="value" step="0.01" placeholder="Enter pressure value" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="from" required>
+                <option value="pascals">Pascals (Pa)</option>
+                <option value="kilopascals">Kilopascals (kPa)</option>
+                <option value="bar">Bar</option>
+                <option value="psi">PSI (Pound per Square Inch)</option>
+                <option value="atmospheres">Atmospheres (atm)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="to" required>
+                <option value="pascals">Pascals (Pa)</option>
+                <option value="kilopascals">Kilopascals (kPa)</option>
+                <option value="bar">Bar</option>
+                <option value="psi">PSI (Pound per Square Inch)</option>
+                <option value="atmospheres">Atmospheres (atm)</option>
+            </select>
+        </div>
+    `;
+}
+
+
+else if (calcId === 'recycling') {
+    html += `
+        <div class="form-group">
+            <label>Paper Recycled (kg/year):</label>
+            <input type="number" id="paper" step="0.01" placeholder="e.g., 20">
+        </div>
+
+        <div class="form-group">
+            <label>Plastic Recycled (kg/year):</label>
+            <input type="number" id="plastic" step="0.01" placeholder="e.g., 15">
+        </div>
+
+        <div class="form-group">
+            <label>Glass Recycled (kg/year):</label>
+            <input type="number" id="glass" step="0.01" placeholder="e.g., 10">
+        </div>
+
+        <div class="form-group">
+            <label>Metal Recycled (kg/year):</label>
+            <input type="number" id="metal" step="0.01" placeholder="e.g., 8">
+        </div>
+
+        <p class="note">♻ Recycling reduces CO₂ emissions and conserves energy.</p>
+    `;
+}
+
+
+        else if (calcId === 'sleep_hours') {
             html += `
                 <div class="form-group">
                     <label>Bedtime:</label>
@@ -1624,30 +2104,7 @@
                     <input type="number" id="months" required>
                 </div>
             `;
-        } else if (calcId === 'retirement') {
-            html += `
-                <div class="form-group">
-                    <label>Current Age:</label>
-                    <input type="number" id="current_age" required>
-                </div>
-                <div class="form-group">
-                    <label>Retirement Age:</label>
-                    <input type="number" id="retire_age" required>
-                </div>
-                <div class="form-group">
-                    <label>Current Savings ($):</label>
-                    <input type="number" id="current_savings" step="0.01" value="0">
-                </div>
-                <div class="form-group">
-                    <label>Monthly Contribution ($):</label>
-                    <input type="number" id="monthly_contribution" step="0.01" value="0">
-                </div>
-                <div class="form-group">
-                    <label>Annual Return Rate (%):</label>
-                    <input type="number" id="rate" step="0.01" value="5">
-                </div>
-            `;
-        } else if (calcId === 'currency_converter') {
+        }  else if (calcId === 'currency_converter') {
             html += `
                 <div class="form-group">
                     <label>Amount:</label>
