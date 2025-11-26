@@ -428,9 +428,8 @@
                     <h4>CalcMaster Pro</h4>
                     <p>Your trusted partner for all calculation needs. Professional, accurate, and always free.</p>
                     <div class="social-links">
-                        <a href="#" class="social-link">📘 Facebook</a>
-                        <a href="#" class="social-link">🐦 Twitter</a>
-                        <a href="#" class="social-link">💼 LinkedIn</a>
+                        <a href="https://wa.me/919876543210"class="social-link">📩 Chat on WhatsApp</a>
+                        <a href="www.linkedin.com/in/himeshmishra2007"class="social-link">💼 LinkedIn</a>
                     </div>
                 </div>
                 
@@ -461,7 +460,7 @@
                         <li><a href="mailto:himeshm548@gmail.com">Email Support</a></li>
                         <li><a href="#" onclick="showContact()">Report Bug</a></li>
                         <li><a href="#" onclick="showContact()">Feature Request</a></li>
-                        <li><a href="#" onclick="alert('Help: Use the search box to find calculators quickly, or browse by category.')">Help Center</a></li>
+                        <li><a href="#" onclick="alert('Help: Use the search box to find calculators quickly, or browse by category.For more info visit to FAQ page')">Help Center</a></li>
                     </ul>
                 </div>
             </div>
@@ -703,7 +702,45 @@
                     <input type="number" id="percent" step="0.01" required>
                 </div>
             `;
-        } else if (calcId === 'factorial') {
+        } 
+        
+            else if (calcId === 'area-converter') {
+    html += `
+        <div class="form-group">
+            <label>Enter Value:</label>
+            <input type="number" id="areaValue" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label>From Unit:</label>
+            <select id="fromUnit" required>
+                <option value="sqm">Square Meter (m²)</option>
+                <option value="sqcm">Square Centimeter (cm²)</option>
+                <option value="sqkm">Square Kilometer (km²)</option>
+                <option value="sqft">Square Feet (ft²)</option>
+                <option value="sqin">Square Inch (in²)</option>
+                <option value="sqyd">Square Yard (yd²)</option>
+                <option value="acre">Acre</option>
+                <option value="hectare">Hectare</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>To Unit:</label>
+            <select id="toUnit" required>
+                <option value="sqm">Square Meter (m²)</option>
+                <option value="sqcm">Square Centimeter (cm²)</option>
+                <option value="sqkm">Square Kilometer (km²)</option>
+                <option value="sqft">Square Feet (ft²)</option>
+                <option value="sqin">Square Inch (in²)</option>
+                <option value="sqyd">Square Yard (yd²)</option>
+                <option value="acre">Acre</option>
+                <option value="hectare">Hectare</option>
+            </select>
+        </div>
+    `;
+}    
+        else if (calcId === 'factorial') {
             html += `
                 <div class="form-group">
                     <label>Number:</label>
