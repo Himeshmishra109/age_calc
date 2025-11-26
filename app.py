@@ -13,7 +13,7 @@ CALCULATORS = [
     {'id': 'age', 'name': 'Age Calculator', 'category': 'Date & Time', 'description': 'Calculate your exact age'},
     {'id': 'age_difference', 'name': 'Age Difference', 'category': 'Date & Time', 'description': 'Calculate age difference'},
     {'id': 'alcohol_units', 'name': 'Alcohol Units', 'category': 'Health', 'description': 'Calculate alcohol units'},
-    {'id': 'unit_area', 'name': 'Area Converter', 'category': 'Unit Conversion', 'description': 'Convert area units'},
+    {'id': 'area-converter', 'name': 'Area Converter', 'category': 'Unit Conversion', 'description': 'Convert area units'},
     {'id': 'bmi', 'name': 'BMI Calculator', 'category': 'Health', 'description': 'Calculate Body Mass Index'},
     {'id': 'bmr', 'name': 'BMR Calculator', 'category': 'Health', 'description': 'Calculate Basal Metabolic Rate'},
     {'id': 'binary', 'name': 'Binary Converter', 'category': 'Math', 'description': 'Convert decimal to binary'},
@@ -214,30 +214,36 @@ def calculate(calc_id, data):
             from_unit = data.get("fromUnit")
             to_unit = data.get("toUnit")
 
-            if not value:
+            if value is None or value == "":
                 return "Error: Please enter a value"
+
             if not from_unit or not to_unit:
                 return "Error: Please select both units"
 
-            value = float(value)
+            try:
+                value = float(value)
+            except:
+                return "Error: Please enter a valid number"
 
             conversion = {
-            "sqm": 1,
-            "sqcm": 0.0001,
-            "sqkm": 1000000,
-            "sqft": 0.092903,
-            "sqin": 0.00064516,
-            "sqyd": 0.836127,
-            "acre": 4046.8564224,
-            "hectare": 10000
-        }
+        "sqm": 1,
+        "sqcm": 0.0001,
+        "sqkm": 1000000,
+        "sqft": 0.092903,
+        "sqin": 0.00064516,
+        "sqyd": 0.836127,
+        "acre": 4046.8564224,
+        "hectare": 10000
+    }
 
             if from_unit not in conversion or to_unit not in conversion:
                 return "Error: Invalid unit selected"
 
             value_in_sqm = value * conversion[from_unit]
             result = value_in_sqm / conversion[to_unit]
+
             return f"Converted Value: {result:.4f} {to_unit}"
+
 
         
         elif calc_id == "next_birthday":
@@ -388,22 +394,6 @@ def calculate(calc_id, data):
             cycles = hours / 1.5
             return f"Sleep Duration: {hours:.1f} hours ({cycles:.1f} sleep cycles)"
         
-        elif calc_id == "pregnancy_due":
-            lmp_str = data.get("lmp")
-            if not lmp_str:
-                return "Error: Please provide last menstrual period date"
-            lmp = datetime.strptime(lmp_str, "%Y-%m-%d")
-            due_date = lmp + timedelta(days=280)
-            return f"Due Date: {due_date.strftime('%B %d, %Y')}"
-        
-        elif calc_id == "ovulation":
-            lmp_str = data.get("lmp")
-            if not lmp_str:
-                return "Error: Please provide last menstrual period date"
-            lmp = datetime.strptime(lmp_str, "%Y-%m-%d")
-            cycle_length = int(float(data.get("cycle_length", 28)))
-            ovulation = lmp + timedelta(days=cycle_length - 14)
-            return f"Ovulation Date: {ovulation.strftime('%B %d, %Y')}"
         
         elif calc_id == "alcohol_units":
             volume = float(data.get("volume"))
@@ -1166,16 +1156,6 @@ def calculate(calc_id, data):
             result = liters / conversions.get(to_unit, 1)
             return f"{value} {from_unit} = {result:.4f} {to_unit}"
         
-        elif calc_id == "unit_area":
-            value = float(data.get("value"))
-            from_unit = data.get("from")
-            to_unit = data.get("to")
-            conversions = {"square_meters": 1, "square_kilometers": 1000000,
-                          "square_feet": 0.092903, "square_yards": 0.836127,
-                          "acres": 4046.86, "hectares": 10000}
-            sq_meters = value * conversions.get(from_unit, 1)
-            result = sq_meters / conversions.get(to_unit, 1)
-            return f"{value} {from_unit} = {result:.4f} {to_unit}"
         
         elif calc_id == "unit_speed":
             value = float(data.get("value"))
