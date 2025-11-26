@@ -9,6 +9,36 @@ html, body {
     overflow-x: hidden; /* 🛑 Prevent horizontal scroll */
 }
 
+@media (max-width: 768px) {
+
+    /* Fix navbar width issue */
+    .nav-links {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        overflow-x: auto; /* 👈 allows scrolling */
+        white-space: nowrap;
+        padding: 10px 5px;
+        justify-content: flex-start;
+        scrollbar-width: none; /* Firefox hide scrollbar */
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none; /* Chrome hide scrollbar */
+    }
+
+    .nav-link {
+        font-size: 0.85em;
+        padding: 8px 14px; /* smaller buttons */
+    }
+
+    .nav-brand h1 {
+        font-size: 1.6em;
+        text-align: center;
+        width: 100%;
+    }
+}
+
 /* BODY */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
