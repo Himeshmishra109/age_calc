@@ -207,6 +207,38 @@ def calculate(calc_id, data):
             today = datetime.today()
             days = (target_date - today).days
             return f"Days Until Event: {days} days"
+
+        
+        elif calc_id == "area-converter":
+            value = data.get("value")
+            from_unit = data.get("fromUnit")
+            to_unit = data.get("toUnit")
+
+            if not value:
+                return "Error: Please enter a value"
+            if not from_unit or not to_unit:
+                return "Error: Please select both units"
+
+            value = float(value)
+
+            conversion = {
+            "sqm": 1,
+            "sqcm": 0.0001,
+            "sqkm": 1000000,
+            "sqft": 0.092903,
+            "sqin": 0.00064516,
+            "sqyd": 0.836127,
+            "acre": 4046.8564224,
+            "hectare": 10000
+        }
+
+            if from_unit not in conversion or to_unit not in conversion:
+                return "Error: Invalid unit selected"
+
+            value_in_sqm = value * conversion[from_unit]
+            result = value_in_sqm / conversion[to_unit]
+            return f"Converted Value: {result:.4f} {to_unit}"
+
         
         elif calc_id == "next_birthday":
             dob_str = data.get("dob")
