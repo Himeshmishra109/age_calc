@@ -244,9 +244,14 @@
         document.getElementById('calcForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const formData = new FormData(e.target);
+            // Collect data from all inputs and selects by their ID
             const data = {};
-            formData.forEach((value, key) => data[key] = value);
+            const inputs = e.target.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.id) {
+                    data[input.id] = input.value;
+                }
+            });
             
             const resultDiv = document.getElementById('result');
             resultDiv.textContent = 'Calculating...';
