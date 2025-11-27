@@ -1757,78 +1757,9 @@ else if (calcId === 'recycling') {
                     </div>
                 </div>
             `;
+  
+            ``;
         }
 
-    
-
-        const dynamicForm = document.getElementById('dynamicForm');
-        if (dynamicForm) {
-            dynamicForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                calculate(calcId);
-            });
-        }
-    }
-
-    function calculate(calcId) {
-        const form = document.getElementById('dynamicForm');
-        if (!form) return;
-        const inputs = form.querySelectorAll('input, select');
-        const data = {};
-
-        inputs.forEach(input => {
-            if (input.id) data[input.id] = input.value;
-        });
-
-        const resultDiv = document.getElementById('result');
-        if (resultDiv) resultDiv.textContent = 'Calculating...';
-
-        fetch('/calculate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ calc_id: calcId, data: data })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(json => {
-            if (resultDiv) {
-                resultDiv.textContent = json.result;
-                resultDiv.style.display = 'block';
-                resultDiv.classList.add('show');
-            }
-        })
-        .catch(err => {
-            if (resultDiv) {
-                resultDiv.textContent = 'Error: ' + err.message;
-                resultDiv.style.display = 'block';
-                resultDiv.classList.add('show');
-            }
-            console.error('Calculate error:', err);
-        });
-    }
-
-    function escapeHtml(unsafe) {
-        if (unsafe === undefined || unsafe === null) return '';
-        return String(unsafe)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-
-// Make the function visible to other pages
-window.generateFormHTML = generateFormHTML;
-
-// Optional if filter function exists
-try {
-    filterCalculators('', 'all');
-} catch (e) {
-    console.warn("filterCalculators not used on this page.");
+    return html;
 }
-
-
-
