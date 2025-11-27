@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ calc.name }} | Calculator</title>
+    <meta name="description" content="{{ calc.description }}">
+
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .box { max-width: 600px; margin: auto; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        input, button { width: 100%; padding: 10px; margin-top: 10px; }
+        button { background: #007bff; color: white; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        a { text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>{{ calc.name }}</h2>
+    <p>{{ calc.description }}</p>
+
+    <!-- Sample Input / test -->
+    <input type="number" id="num" placeholder="Enter a number">
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="result" style="margin-top:15px; font-weight:bold;"></div>
+
+    <hr>
+    <p><b>More Tools:</b></p>
+    <ul>
+        {% for c in calculators %}
+            <li><a href="/calc/{{ c.slug }}">{{ c.name }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+function calculate(){
+    let v = document.getElementById("num").value;
+    document.getElementById("result").innerHTML = "Demo Result: " + (v * 2);
+}
+</script>
+
+</body>
+</html>
