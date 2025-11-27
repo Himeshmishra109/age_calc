@@ -1820,11 +1820,16 @@ else if (calcId === 'recycling') {
             .replace(/'/g, "&#039;");
     }
 
-    // Initialize
+
+// Make the function visible to other pages
+window.generateFormHTML = generateFormHTML;
+
+// Optional if filter function exists
+try {
     filterCalculators('', 'all');
-</script>
-    window.generateFormHTML = generateFormHTML;
-</body>
-</html>
+} catch (e) {
+    console.warn("filterCalculators not used on this page.");
+}
+
 
 
