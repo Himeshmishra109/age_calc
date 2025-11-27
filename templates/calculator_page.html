@@ -220,51 +220,30 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='calculator-forms.js') }}?v=2"></script>
-    <script>
-        const calcId = "{{ calculator.id }}";
-        const calcName = "{{ calculator.name }}";
-        
-        // Generate form immediately after script loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const formFields = document.getElementById('formFields');
-            try {
-                if (typeof generateFormHTML !== 'undefined') {
-                    formFields.innerHTML = generateFormHTML(calcId);
-                } else {
-                    throw new Error('generateFormHTML not loaded');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                formFields.innerHTML = '<p style="color: red;">Error loading form: ' + error.message + '</p>';
+    <script src="{{ url_for('static', filename='calculator-forms.js') }}?v=3"></script>
+
+<script>
+    const calcId = "{{ calculator.id }}";
+
+    function loadForm() {
+        const formFields = document.getElementById('formFields');
+
+        if (typeof generateFormHTML === 'function') {
+            const html = generateFormHTML(calcId);
+
+            if (!html || html.trim() === "") {
+                formFields.innerHTML = `<p style="color:red;">⚠ No form available for: ${calcId}</p>`;
+            } else {
+                formFields.innerHTML = html;
             }
-        });
-        
-        // Handle form submission
-        document.getElementById('calcForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const data = {};
-            formData.forEach((value, key) => data[key] = value);
-            
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = 'Calculating...';
-            resultDiv.classList.add('show');
-            
-            try {
-                const response = await fetch('/calculate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ calc_id: calcId, data: data })
-                });
-                
-                const result = await response.json();
-                resultDiv.textContent = result.result;
-            } catch (error) {
-                resultDiv.textContent = 'Error calculating. Please try again.';
-            }
-        });
-    </script>
+        } else {
+            formFields.innerHTML = `<p style="color:red;">Error: generateFormHTML not loaded</p>`;
+        }
+    }
+
+    // Ensure calculator-forms.js is fully loaded before running
+    window.addEventListener("load", loadForm);
+</script>
+
 </body>
 </html>
