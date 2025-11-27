@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from datetime import datetime, timedelta
 import math
 import random
+import json , os
 from collections import Counter
 
 app = Flask(__name__)
@@ -119,6 +120,23 @@ CALCULATORS = [
     {'id': 'work', 'name': 'Work Calculator', 'category': 'Physics', 'description': 'Calculate work done'},
     {'id': 'work_days', 'name': 'Work Days', 'category': 'Date & Time', 'description': 'Calculate work days between dates'},
 ]
+# Load calculators list from JSON
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, "data", "calculators.json")
+
+with open(DATA_FILE, "r", encoding="utf-8") as file:
+    CALCULATORS = json.load(file)
+
+@app.route("/")
+def home():
+    return render_template("index.html", calculators=CALCULATORS)
+@app.route("/calc/<slug>")
+def calculator(slug):
+    for calc in CALCULATORS:
+        if calc["slug"] == slug:
+            return render_template("calculator.html", calc=calc, calculators=CALCULATORS)
+
+    return abort(404)
 
 def get_float_value(data, key, default=None, required=True):
     """Helper function to safely get and validate float values"""
