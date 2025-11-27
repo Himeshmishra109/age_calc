@@ -1,0 +1,8 @@
+[
+  { "slug": "acceleration", "name": "Acceleration", "category": "Physics", "description": "Calculate acceleration" },
+  { "slug": "date_add", "name": "Add Days to Date", "category": "Date & Time", "description": "Add days to a date" },
+  { "slug": "age", "name": "Age Calculator", "category": "Date & Time", "description": "Calculate your exact age" },
+  { "slug": "age_difference", "name": "Age Difference", "category": "Date & Time", "description": "Calculate age difference" },
+  { "slug": "alcohol_units", "name": "Alcohol Units", "category": "Health", "description": "Calculate alcohol units" },
+  { "slug": "unit_area", "name": "Area Converter", "category": "Unit Conversion", "description": "Convert area units" }
+]
