@@ -1820,17 +1820,17 @@ else if (calcId === 'recycling') {
     }
 
 
-// Make the function visible to other pages
-// Make function available globally
+// Export function globally so HTML can access it
 window.generateFormHTML = generateFormHTML;
 
-// Optional (only used on homepage)
-try {
-    filterCalculators('', 'all');
-} catch (e) {
-    console.warn("filterCalculators not used on this page.");
+// Try applying filter only if function exists (homepage only)
+if (typeof filterCalculators === "function") {
+    try {
+        filterCalculators("", "all");
+    } catch (e) {
+        console.warn("Filtering not required here.");
+    }
 }
 
-return html; // <-- Must stay inside generateFormHTML function
 
 
