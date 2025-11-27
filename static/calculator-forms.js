@@ -1830,5 +1830,6 @@ try {
     console.warn("filterCalculators not used on this page.");
 }
 
-
+return html;
+}
 
