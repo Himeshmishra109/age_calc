@@ -1823,7 +1823,8 @@ else if (calcId === 'recycling') {
     // Initialize
     filterCalculators('', 'all');
 </script>
+    window.generateFormHTML = generateFormHTML;
 </body>
 </html>
 
-}
+
