@@ -1,7 +1,7 @@
 [
   { "id": "acceleration", "slug": "acceleration", "name": "Acceleration", "category": "Physics", "description": "Calculate acceleration from velocity and time" },
   { "id": "date_add", "slug": "add-days-to-date", "name": "Add Days to Date", "category": "Date & Time", "description": "Add or subtract days from any date" },
-  { "id": "age", "slug": "age-calculator", "name": "Age Calculator", "category": "Date & Time", "description": "Calculate your exact age in years, months, and days" },
+  { "id": "age", "slug": "age", "name": "Age Calculator", "category": "Date & Time", "description": "Calculate your exact age in years, months, and days" },
   { "id": "age_difference", "slug": "age-difference", "name": "Age Difference", "category": "Date & Time", "description": "Calculate age difference between two people" },
   { "id": "alcohol_units", "slug": "alcohol-units", "name": "Alcohol Units", "category": "Health", "description": "Calculate alcohol units in drinks" },
   { "id": "area-converter", "slug": "area-converter", "name": "Area Converter", "category": "Unit Conversion", "description": "Convert between area units" },
