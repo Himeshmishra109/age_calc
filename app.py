@@ -8,14 +8,7 @@ from collections import Counter
 app = Flask(__name__)
 
 # Define all 100 calculators with their metadata
-CALCULAfrom flask import Flask, render_template, request, jsonify
-from datetime import datetime, timedelta
-import math
-import random
-import json , os
-from collections import Counter
 
-app = Flask(__name__)
 
 # Load calculators list from JSON file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
