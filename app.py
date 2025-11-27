@@ -1245,5 +1245,49 @@ def privacy_policy():
 def terms():
     return render_template("terms.html")
 
+from flask import Response
+
+@app.route("/robots.txt")
+def robots_txt():
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n\n"
+        "Sitemap: https://age-calc-3lf5.vercel.app/sitemap.xml"
+    )
+    return Response(content, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    base_url = "https://age-calc-3lf5.vercel.app"
+
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+
+    # Homepage entry
+    xml.append(f"""
+        <url>
+            <loc>{base_url}/</loc>
+            <changefreq>weekly</changefreq>
+            <priority>1.0</priority>
+        </url>
+    """)
+
+    # Add each calculator dynamically
+    for calc in CALCULATORS:
+        xml.append(f"""
+            <url>
+                <loc>{base_url}/{calc['id']}</loc>
+                <changefreq>weekly</changefreq>
+                <priority>0.8</priority>
+            </url>
+        """)
+
+    xml.append("</urlset>")
+    sitemap_xml = "\n".join(xml)
+
+    return Response(sitemap_xml, mimetype="application/xml")
+
+
 if __name__ == "__main__":
     app.run(debug = True)
