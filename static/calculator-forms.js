@@ -1760,9 +1760,6 @@ else if (calcId === 'recycling') {
         }
 
     
-    const container = document.getElementById('formFields');
-if (container) container.innerHTML = html;
-
 
         const dynamicForm = document.getElementById('dynamicForm');
         if (dynamicForm) {
