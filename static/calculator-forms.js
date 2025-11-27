@@ -1821,15 +1821,16 @@ else if (calcId === 'recycling') {
 
 
 // Make the function visible to other pages
+// Make function available globally
 window.generateFormHTML = generateFormHTML;
 
-// Optional if filter function exists
+// Optional (only used on homepage)
 try {
     filterCalculators('', 'all');
 } catch (e) {
     console.warn("filterCalculators not used on this page.");
 }
 
-return html;
-}
+return html; // <-- Must stay inside generateFormHTML function
+
 
