@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://age-calc-31f5.vercel.app/sitemap.xml
