@@ -15,18 +15,6 @@ DATA_FILE = os.path.join(BASE_DIR, "data", "calculators.json")
 with open(DATA_FILE, "r", encoding="utf-8") as file:
     CALCULATORS = json.load(file)
 
-# Serve static sitemap and robots BEFORE any other routes
-@app.route('/sitemap.xml')
-def serve_sitemap():
-    """Serve static sitemap.xml from public folder"""
-    public_dir = os.path.join(app.root_path, '..', 'public')
-    return send_from_directory(public_dir, 'sitemap.xml', mimetype='application/xml')
-
-@app.route('/robots.txt')
-def serve_robots():
-    """Serve static robots.txt from public folder"""
-    public_dir = os.path.join(app.root_path, '..', 'public')
-    return send_from_directory(public_dir, 'robots.txt', mimetype='text/plain')
 
 def get_float_value(data, key, default=None, required=True):
     """Helper function to safely get and validate float values"""
