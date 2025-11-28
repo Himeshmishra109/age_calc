@@ -1175,6 +1175,15 @@ def privacy_policy():
 @app.route("/terms-and-conditions")
 def terms():
     return render_template("terms.html")
+from flask import send_from_directory
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('.', 'sitemap.xml', mimetype='application/xml')
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('.', 'robots.txt', mimetype='text/plain')
 
 
 
