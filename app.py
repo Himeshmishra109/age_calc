@@ -1151,17 +1151,6 @@ def calculator_page(slug):
     
     return render_template("calculator_page.html", calculator=calc, all_calculators=CALCULATORS)
 
-
-
-@app.route('/sitemap.xml')
-def serve_sitemap():
-    return send_from_directory('public', 'sitemap.xml')
-
-@app.route('/robots.txt')
-def serve_robots():
-    return send_from_directory('public', 'robots.txt')
-
-
 @app.route("/calculate", methods=["POST"])
 def calculate_route():
     data = request.json
