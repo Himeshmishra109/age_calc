@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ calculator.name }} - Free Online Calculator | CalcMaster Pro</title>
+    <meta name="description" content="{{ calculator.description }}. Free online {{ calculator.name|lower }} tool. Calculate instantly with accurate results.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .category-badge {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .description {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .calculator-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .result {
+            margin-top: 25px;
+            padding: 25px;
+            background: #1a1a2e;
+            color: #fff;
+            border-radius: 12px;
+            border: 3px solid #667eea;
+            font-size: 1.3em;
+            text-align: center;
+            font-weight: 700;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .related-calculators {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        .related-calculators h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .calc-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        .calc-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        .calc-card h4 {
+            color: #667eea;
+            margin: 0 0 5px 0;
+            font-size: 1em;
+        }
+        .calc-card p {
+            margin: 0;
+            font-size: 0.85em;
+            color: #666;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to All Calculators</a>
+        
+        <div class="header">
+            <h1>{{ calculator.name }}</h1>
+            <span class="category-badge">{{ calculator.category }}</span>
+            <p class="description">{{ calculator.description }}</p>
+        </div>
+
+        <div class="calculator-form">
+            <form id="calcForm">
+                <div id="formFields"></div>
+                <button type="submit" class="calculate-btn">Calculate</button>
+            </form>
+            <div id="result" class="result"></div>
+        </div>
+
+        <div class="related-calculators">
+            <h3>Related Calculators in {{ calculator.category }}</h3>
+            <div class="calc-grid">
+                {% for calc in all_calculators %}
+                    {% if calc.category == calculator.category and calc.id != calculator.id %}
+                    <a href="/calculator/{{ calc.slug }}" class="calc-card">
+                        <h4>{{ calc.name }}</h4>
+                        <p>{{ calc.description }}</p>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Professional Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>CalcMaster Pro</h4>
+                <p>Your trusted partner for all calculation needs. Professional, accurate, and always free.</p>
+                <div class="social-links">
+                    <a href="https://wa.me/919455049611" class="social-link" target="_blank" rel="noopener">&#128233; Chat on WhatsApp</a>
+                    <a href="https://www.linkedin.com/in/himeshmishra2007" class="social-link" target="_blank" rel="noopener">&#128100; LinkedIn</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links-list">
+                    <li><a href="/">All Calculators</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy-policy">Privacy Policy</a></li>
+                    <li><a href="/terms-and-conditions">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Popular Categories</h4>
+                <ul class="footer-links-list">
+                    <li><a href="/">Finance</a></li>
+                    <li><a href="/">Mathematics</a></li>
+                    <li><a href="/">Physics</a></li>
+                    <li><a href="/">Health</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul class="footer-links-list">
+                    <li><a href="mailto:himeshm548@gmail.com">Email Support</a></li>
+                    <li><a href="/contact">Report Bug</a></li>
+                    <li><a href="/contact">Feature Request</a></li>
+                    <li><a href="/about">Help Center</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 CalcMaster Pro. All rights reserved. | Made with &#10084;&#65039; for calculation enthusiasts worldwide.</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="/about">About</a> | 
+                <a href="/contact">Contact</a> | 
+                <a href="/privacy-policy">Privacy</a> | 
+                <a href="/terms-and-conditions">Terms</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='calculator-forms.js') }}?v=2"></script>
+    <script>
+        const calcId = "{{ calculator.id }}";
+        const calcName = "{{ calculator.name }}";
+        
+        // Generate form immediately after script loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const formFields = document.getElementById('formFields');
+            try {
+                if (typeof generateFormHTML !== 'undefined') {
+                    formFields.innerHTML = generateFormHTML(calcId);
+                } else {
+                    throw new Error('generateFormHTML not loaded');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                formFields.innerHTML = '<p style="color: red;">Error loading form: ' + error.message + '</p>';
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('calcForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Collect data from all inputs and selects by their ID
+            const data = {};
+            const inputs = e.target.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.id) {
+                    data[input.id] = input.value;
+                }
+            });
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Calculating...';
+            resultDiv.classList.add('show');
+            
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ calc_id: calcId, data: data })
+                });
+                
+                const result = await response.json();
+                resultDiv.textContent = result.result;
+            } catch (error) {
+                resultDiv.textContent = 'Error calculating. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>
