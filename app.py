@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response, send_from_directory
 from datetime import datetime, timedelta
 import math
 import random
-import json , os
+import json
+import os
 from collections import Counter
 
 app = Flask(__name__)
@@ -13,6 +14,19 @@ DATA_FILE = os.path.join(BASE_DIR, "data", "calculators.json")
 
 with open(DATA_FILE, "r", encoding="utf-8") as file:
     CALCULATORS = json.load(file)
+
+# Serve static sitemap and robots BEFORE any other routes
+@app.route('/sitemap.xml')
+def serve_sitemap():
+    """Serve static sitemap.xml from public folder"""
+    public_dir = os.path.join(app.root_path, '..', 'public')
+    return send_from_directory(public_dir, 'sitemap.xml', mimetype='application/xml')
+
+@app.route('/robots.txt')
+def serve_robots():
+    """Serve static robots.txt from public folder"""
+    public_dir = os.path.join(app.root_path, '..', 'public')
+    return send_from_directory(public_dir, 'robots.txt', mimetype='text/plain')
 
 def get_float_value(data, key, default=None, required=True):
     """Helper function to safely get and validate float values"""
@@ -1150,17 +1164,6 @@ def calculator_page(slug):
         return render_template("404.html"), 404
     
     return render_template("calculator_page.html", calculator=calc, all_calculators=CALCULATORS)
-
-
-
-@app.route('/sitemap.xml')
-def serve_sitemap():
-    return send_from_directory('public', 'sitemap.xml')
-
-@app.route('/robots.txt')
-def serve_robots():
-    return send_from_directory('public', 'robots.txt')
-
 
 @app.route("/calculate", methods=["POST"])
 def calculate_route():
