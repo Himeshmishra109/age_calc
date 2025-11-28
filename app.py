@@ -1174,6 +1174,39 @@ def privacy_policy():
 def terms():
     return render_template("terms.html")
 
+@app.route("/sitemap.xml")
+def sitemap():
+    """Generate sitemap for SEO - automatically includes all calculators"""
+    base_url = request.url_root.rstrip('/')
+    
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Main pages
+    pages = ['', '/about', '/contact', '/privacy-policy', '/terms-and-conditions']
+    for page in pages:
+        xml += f'  <url><loc>{base_url}{page}</loc><priority>0.8</priority></url>\n'
+    
+    # All calculator pages - using SEO-friendly slugs
+    for calc in CALCULATORS:
+        xml += f'  <url><loc>{base_url}/calculator/{calc["slug"]}</loc><priority>0.9</priority></url>\n'
+    
+    xml += '</urlset>'
+    
+    return xml, 200, {'Content-Type': 'application/xml'}
+
+from flask import Response
+
+@app.route("/robots.txt")
+def robots_txt():
+    """Robots.txt for search engines"""
+    base_url = request.url_root.rstrip('/')
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n\n"
+        f"Sitemap: {base_url}/sitemap.xml"
+    )
+    return Response(content, mimetype="text/plain")
 
 
 if __name__ == "__main__":
