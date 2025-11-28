@@ -4,6 +4,8 @@
     { "src": "app.py", "use": "@vercel/python" }
   ],
   "routes": [
+    { "src": "/sitemap.xml", "dest": "/public/sitemap.xml" },
+    { "src": "/robots.txt", "dest": "/public/robots.txt" },
     { "src": "/(.*)", "dest": "app.py" }
   ]
 }
