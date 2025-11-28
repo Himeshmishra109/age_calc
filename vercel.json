@@ -6,22 +6,18 @@
       "use": "@vercel/python"
     }
   ],
-  "staticFiles": {
-    "/sitemap.xml": "public/sitemap.xml",
-    "/robots.txt": "public/robots.txt"
-  },
   "routes": [
     {
       "src": "/sitemap.xml",
-      "dest": "/sitemap.xml"
+      "dest": "/public/sitemap.xml"
     },
     {
       "src": "/robots.txt",
-      "dest": "/robots.txt"
+      "dest": "/public/robots.txt"
     },
     {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "/app.py"
     }
   ]
 }
