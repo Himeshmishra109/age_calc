@@ -6,6 +6,10 @@
       "use": "@vercel/python"
     }
   ],
+  "staticFiles": {
+    "/sitemap.xml": "public/sitemap.xml",
+    "/robots.txt": "public/robots.txt"
+  },
   "routes": [
     {
       "src": "/sitemap.xml",
