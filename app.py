@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, Response, send_from_directory
+from flask import Flask, render_template, request, jsonify, Response, send_from_directory,url_for
 from datetime import datetime, timedelta
 import math
 import random
@@ -17,10 +17,46 @@ with open(DATA_FILE, "r", encoding="utf-8") as file:
 
 # Serve static sitemap and robots BEFORE any other routes
 @app.route('/sitemap.xml')
-def serve_sitemap():
-    """Serve static sitemap.xml from public folder"""
-    public_dir = os.path.join(app.root_path, 'public')
-    return send_from_directory(public_dir, 'sitemap.xml', mimetype='application/xml')
+def sitemap():
+    """Generate dynamic sitemap based on calculator list"""
+
+    pages = []
+
+    # Base domain of your deployed site (UPDATE this if needed)
+    base_url = "https://age-calc-3lf5.vercel.app"
+
+    # Add homepage
+    pages.append({
+        "loc": base_url,
+        "lastmod": datetime.now().strftime("%Y-%m-%d")
+    })
+
+    # Add all calculator URLs dynamically from JSON
+    for calc in CALCULATORS:
+        slug = calc.get("id") or calc.get("slug")
+        if slug:
+            pages.append({
+                "loc": f"{base_url}/{slug}",
+                "lastmod": datetime.now().strftime("%Y-%m-%d")
+            })
+
+    # Generate XML content
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>']
+    xml.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+
+    for page in pages:
+        xml.append("<url>")
+        xml.append(f"<loc>{page['loc']}</loc>")
+        xml.append(f"<lastmod>{page['lastmod']}</lastmod>")
+        xml.append("<changefreq>weekly</changefreq>")
+        xml.append("<priority>0.80</priority>")
+        xml.append("</url>")
+
+    xml.append("</urlset>")
+    sitemap_xml = "\n".join(xml)
+
+    return Response(sitemap_xml, mimetype="application/xml")
+
 
 @app.route('/robots.txt')
 def serve_robots():
