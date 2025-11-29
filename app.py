@@ -36,7 +36,7 @@ def sitemap():
         slug = calc.get("id") or calc.get("slug")
         if slug:
             pages.append({
-                "loc": f"{base_url}/{slug}",
+                "loc": f"{base_url}/calculator/{slug}",
                 "lastmod": datetime.now().strftime("%Y-%m-%d")
             })
 
