@@ -59,10 +59,12 @@ def sitemap():
 
 
 @app.route('/robots.txt')
-def serve_robots():
-    """Serve static robots.txt from public folder"""
-    public_dir = os.path.join(app.root_path, 'public')
-    return send_from_directory(public_dir, 'robots.txt', mimetype='text/plain')
+def robots():
+    return send_from_directory(app.root_path, 'robots.txt', mimetype='text/plain')
+
+@app.route('/ads.txt')
+def ads():
+    return send_from_directory(app.root_path, 'ads.txt', mimetype='text/plain')
 
 def get_float_value(data, key, default=None, required=True):
     """Helper function to safely get and validate float values"""
