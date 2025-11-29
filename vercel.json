@@ -6,7 +6,7 @@
   "routes": [
     {
       "src": "/(robots\\.txt|sitemap\\.xml|ads\\.txt)",
-      "dest": "/$1"
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
