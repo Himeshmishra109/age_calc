@@ -4,13 +4,9 @@
     { "src": "app.py", "use": "@vercel/python" }
   ],
   "routes": [
-    {
-      "src": "/(robots\\.txt|sitemap\\.xml|ads\\.txt)",
-      "dest": "/public/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "app.py"
-    }
+    { "src": "/robots.txt", "dest": "app.py" },
+    { "src": "/ads.txt", "dest": "app.py" },
+    { "src": "/sitemap.xml", "dest": "app.py" },
+    { "src": "/(.*)", "dest": "app.py" }
   ]
 }
