@@ -4,11 +4,11 @@
     { "src": "app.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/robots.txt", "dest": "/robots.txt" },
-    { "src": "/ads.txt", "dest": "/ads.txt" },
+    { "src": "/robots.txt", "dest": "/robots.txt", "headers": { "Content-Type": "text/plain" }},
+    { "src": "/ads.txt", "dest": "/ads.txt", "headers": { "Content-Type": "text/plain" }},
     {
       "src": "/sitemap.xml",
-      "dest": "/app.py",
+      "dest": "/sitemap.xml",
       "headers": { "Content-Type": "application/xml" }
     },
     { "src": "/(.*)", "dest": "/app.py" }
