@@ -4,6 +4,7 @@
     { "src": "api/ads.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/ads.txt", "dest": "/api/ads.py" }
+    { "src": "/ads.txt", "dest": "/api/ads.py" },
+    { "src": "/.*", "status": 200, "dest": "/api/ads.py" }
   ]
 }
