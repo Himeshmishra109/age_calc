@@ -62,10 +62,9 @@ def sitemap():
 def robots():
     return send_from_directory(app.root_path, 'robots.txt', mimetype='text/plain')
 
-
 @app.route('/ads.txt')
-def ads_txt():
-    return redirect("https://srv.adstxtmanager.com/19390/clackmasterpro.online", code=301)
+def ads():
+    return send_from_directory(app.root_path, 'ads.txt', mimetype='text/plain')
 
 def get_float_value(data, key, default=None, required=True):
     """Helper function to safely get and validate float values"""
@@ -1211,6 +1210,10 @@ def calculate_route():
     result = calculate(calc_id, data.get("data", {}))
     return jsonify({"result": result})
 
+@app.route("/blog")
+def blog():
+    return render_template("blog.html", calculators=CALCULATORS)
+
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -1231,4 +1234,3 @@ def terms():
 
 if __name__ == "__main__":
     app.run(debug = True)
-
