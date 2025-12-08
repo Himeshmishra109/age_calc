@@ -1,10 +1,9 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/ads.py", "use": "@vercel/python" }
+    { "src": "app.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/ads.txt", "dest": "/api/ads.py" },
-    { "src": "/.*", "status": 200, "dest": "/api/ads.py" }
+    { "src": "/(.*)", "dest": "/app.py" }
   ]
 }
