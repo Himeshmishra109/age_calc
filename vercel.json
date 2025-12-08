@@ -13,7 +13,7 @@
   "redirects": [
     {
       "source": "/ads.txt",
-      "destination": "https://srv.adstxtmanager.com/13990/[YOUR_DOMAIN].com",
+      "destination": "https://srv.adstxtmanager.com/13990/clackmasterpro.com",
       "permanent": true
     }
   ]
