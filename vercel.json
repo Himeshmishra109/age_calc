@@ -5,7 +5,7 @@
   ],
   "routes": [
     { "src": "/robots.txt", "dest": "/robots.txt" },
-    { "src": "/ads.txt", "dest": "/ads.txt" },
+    { "src": "/ads.txt", "dest": "/app.py" }, 
     {
       "src": "/sitemap.xml",
       "dest": "/app.py",
