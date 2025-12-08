@@ -4,21 +4,13 @@
     { "src": "app.py", "use": "@vercel/python" }
   ],
   "routes": [
+    { "src": "/robots.txt", "dest": "/robots.txt" },
+    { "src": "/ads.txt", "dest": "/ads.txt" },
     {
       "src": "/sitemap.xml",
       "dest": "/app.py",
       "headers": { "Content-Type": "application/xml" }
     },
-    {
-      "src": "/(.*)",
-      "dest": "/app.py"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/ads.txt",
-      "destination": "https://srv.adstxtmanager.com/13990/clackmasterpro.online/ads.txt",
-      "permanent": true
-    }
+    { "src": "/(.*)", "dest": "/app.py" }
   ]
 }
