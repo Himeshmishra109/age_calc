@@ -23,7 +23,7 @@ def sitemap():
     pages = []
 
     # Base domain of your deployed site (UPDATE this if needed)
-    base_url = "https://age-calc-3lf5.vercel.app"
+    base_url = "https://clackmasterpro.online"
 
     # Add homepage
     pages.append({
