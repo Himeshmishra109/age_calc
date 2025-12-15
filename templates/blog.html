@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S80PH40KZN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S80PH40KZN');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-9776516979726925" crossorigin="anonymous"></script>
+    <meta name="description" content="Explore our comprehensive collection of online calculators. Learn about features, use cases, and tips for age, BMI, finance, math, physics calculators and more."/>
+    <meta name="google-site-verification" content="brUO8tXM0Vf6t8h3RImXNg9V1_J05jHR6edkHKickc0" />
+    <title>Calculator Blog - Features & Guides | CalcMaster Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .logo h1 {
+            margin: 0;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .tagline {
+            font-size: 0.9em;
+            opacity: 0.9;
+            display: block;
+            margin-top: 5px;
+        }
+        .top-nav {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .blog-hero {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .blog-hero h2 {
+            font-size: 2.5em;
+            margin: 0 0 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .blog-hero p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .blog-content {
+            padding: 40px;
+        }
+        .category-section {
+            margin-bottom: 50px;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        .category-header h3 {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0;
+        }
+        .category-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .calculator-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .calc-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .calc-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.2);
+            border-color: #667eea;
+        }
+        .calc-item h4 {
+            color: #667eea;
+            margin: 0 0 10px 0;
+            font-size: 1.3em;
+        }
+        .calc-item p {
+            color: #666;
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+        .calc-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .calc-features li {
+            padding: 5px 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+        .calc-features li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .use-calc-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .use-calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            .top-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            .top-nav a {
+                flex: 1 1 calc(50% - 10px);
+                text-align: center;
+                font-size: 0.9rem;
+            }
+            .blog-hero h2 {
+                font-size: 1.8em;
+            }
+            .blog-content {
+                padding: 20px;
+            }
+            .calculator-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="logo">
+                    <h1>🤖 CalcMaster Pro</h1>
+                    <span class="tagline">Your Ultimate Calculation Companion</span>
+                </div>
+                <nav class="top-nav">
+                    <a href="/" class="nav-btn">🏠 Calculators</a>
+                    <a href="/blog" class="nav-btn active">📝 Blog</a>
+                    <a href="/about" class="nav-btn">ℹ️ About</a>
+                    <a href="/contact" class="nav-btn">📞 Contact</a>
+                </nav>
+            </div>
+            <div class="blog-hero">
+                <h2>📚 Calculator Features & Guides</h2>
+                <p>Discover all our calculators, their features, and how to use them effectively</p>
+            </div>
+        </header>
+
+        <div class="blog-content">
+            {% set categories = {} %}
+            {% for calc in calculators %}
+                {% set cat = calc.category %}
+                {% if cat not in categories %}
+                    {% set _ = categories.update({cat: []}) %}
+                {% endif %}
+                {% set _ = categories[cat].append(calc) %}
+            {% endfor %}
+
+            {% for category, calcs in categories.items() %}
+            <div class="category-section">
+                <div class="category-header">
+                    <h3>{{ category }}</h3>
+                    <span class="category-count">{{ calcs|length }} Calculators</span>
+                </div>
+                <div class="calculator-list">
+                    {% for calc in calcs %}
+                    <div class="calc-item">
+                        <h4>{{ calc.name }}</h4>
+                        <p>{{ calc.description }}</p>
+                        <ul class="calc-features">
+                            <li>Instant accurate results</li>
+                            <li>Easy to use interface</li>
+                            <li>Mobile friendly design</li>
+                        </ul>
+                        <a href="/calculator/{{ calc.slug }}" class="use-calc-btn">Use Calculator →</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>CalcMaster Pro</h4>
+                <p>Your trusted partner for all calculation needs. Professional, accurate, and always free.</p>
+                <div class="social-links">
+                    <a href="https://wa.me/919455049611" class="social-link" target="_blank" rel="noopener">💬 Chat on WhatsApp</a>
+                    <a href="https://www.linkedin.com/in/himeshmishra2007" class="social-link" target="_blank" rel="noopener">👤 LinkedIn</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/">All Calculators</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy-policy">Privacy Policy</a></li>
+                    <li><a href="/terms-and-conditions">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Popular Categories</h4>
+                <ul class="footer-links">
+                    <li><a href="/blog#Finance">Finance</a></li>
+                    <li><a href="/blog#Math">Mathematics</a></li>
+                    <li><a href="/blog#Physics">Physics</a></li>
+                    <li><a href="/blog#Health">Health</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul class="footer-links">
+                    <li><a href="mailto:himeshm548@gmail.com">Email Support</a></li>
+                    <li><a href="/contact">Report Bug</a></li>
+                    <li><a href="/contact">Feature Request</a></li>
+                    <li><a href="/about">Help Center</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 CalcMaster Pro. All rights reserved. | Made with ❤️ for calculation enthusiasts worldwide.</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                <a href="/about">About</a> | 
+                <a href="/contact">Contact</a> | 
+                <a href="/privacy-policy">Privacy</a> | 
+                <a href="/terms-and-conditions">Terms</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
