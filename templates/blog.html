@@ -14,7 +14,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-9776516979726925" crossorigin="anonymous"></script>
     <meta name="description" content="Explore our comprehensive collection of online calculators. Learn about features, use cases, and tips for age, BMI, finance, math, physics calculators and more."/>
     <meta name="google-site-verification" content="brUO8tXM0Vf6t8h3RImXNg9V1_J05jHR6edkHKickc0" />
-    <title>Calculator Blog - Features & Guides | CalcMaster Pro</title>
+    <title>Calculator Guides & Tools | CalcMaster Pro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body {
@@ -171,6 +171,127 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102,126,234,0.4);
         }
+        .calc-details {
+            margin: 15px 0;
+        }
+        .calc-details h5 {
+            color: #667eea;
+            margin: 10px 0 8px 0;
+            font-size: 1em;
+        }
+        .calc-example {
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            border-left: 3px solid #667eea;
+        }
+        .calc-features li {
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+        .category-intro {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .category-intro p {
+            margin: 0;
+            color: #555;
+            line-height: 1.5;
+        }
+        .blog-search {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .blog-search h2 {
+            color: #667eea;
+            margin: 0 0 20px 0;
+        }
+        .blog-search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .blog-search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .search-stats {
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .popular-section {
+            margin-bottom: 50px;
+        }
+        .popular-section h2 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        .popular-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .popular-calc {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .popular-calc:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(102,126,234,0.3);
+        }
+        .popular-calc h4 {
+            color: white;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+        }
+        .popular-calc p {
+            color: rgba(255,255,255,0.9);
+            margin: 0 0 15px 0;
+            line-height: 1.4;
+        }
+        .popular-example {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+        .popular-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .popular-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
         @media (max-width: 768px) {
             .header-top {
                 flex-direction: column;
@@ -221,6 +342,31 @@
         </header>
 
         <div class="blog-content">
+            <!-- Search Section -->
+            <div class="blog-search">
+                <h2>🔍 Find Your Calculator</h2>
+                <input type="text" id="blogSearch" placeholder="Search calculators by name, category, or use case..." class="blog-search-input">
+                <div class="search-stats" id="searchStats">Showing all {{ calculators|length }} calculators</div>
+            </div>
+            
+            <!-- Popular Calculators Section -->
+            <div class="popular-section">
+                <h2>⭐ Most Popular Calculators</h2>
+                <div class="popular-grid">
+                    {% set popular_ids = ['age', 'bmi', 'simple_interest', 'percentage', 'area_circle', 'loan_payment'] %}
+                    {% for calc in calculators %}
+                        {% if calc.id in popular_ids %}
+                        <div class="popular-calc">
+                            <h4>{{ calc.name }}</h4>
+                            <p>{{ calc.content.description|truncate(80) }}</p>
+                            <div class="popular-example">{{ calc.content.examples[0] if calc.content.examples else "Try it now!" }}</div>
+                            <a href="/calculator/{{ calc.slug }}" class="popular-btn">Calculate Now →</a>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
             {% set categories = {} %}
             {% for calc in calculators %}
                 {% set cat = calc.category %}
@@ -236,16 +382,54 @@
                     <h3>{{ category }}</h3>
                     <span class="category-count">{{ calcs|length }} Calculators</span>
                 </div>
+                
+                <!-- Category Description -->
+                <div class="category-intro">
+                    {% if category == 'Date & Time' %}
+                    <p>Calculate ages, date differences, work days, and time-related calculations. Perfect for planning, scheduling, and time management.</p>
+                    {% elif category == 'Health' %}
+                    <p>Health and fitness calculators for BMI, BMR, calories, and wellness tracking. Note: These are for informational purposes only - consult healthcare professionals for medical advice.</p>
+                    {% elif category == 'Finance' %}
+                    <p>Financial calculators for loans, investments, interest, and money management. Great for budgeting, planning, and financial decision-making.</p>
+                    {% elif category == 'Math' %}
+                    <p>Mathematical calculators covering geometry, algebra, statistics, and number theory. Essential tools for students, professionals, and everyday calculations.</p>
+                    {% elif category == 'Physics' %}
+                    <p>Physics calculators for force, energy, motion, and scientific calculations. Useful for students, engineers, and science professionals.</p>
+                    {% elif category == 'Unit Conversion' %}
+                    <p>Convert between different units of measurement including temperature, length, weight, volume, and more. Essential for international work and travel.</p>
+                    {% elif category == 'Education' %}
+                    <p>Academic calculators for GPA, grades, and educational planning. Perfect for students, teachers, and academic administrators.</p>
+                    {% elif category == 'Home' %}
+                    <p>Home improvement and DIY calculators for paint, flooring, materials, and project planning. Save time and money on your home projects.</p>
+                    {% elif category == 'Automotive' %}
+                    <p>Vehicle-related calculators for fuel efficiency, costs, and automotive planning. Great for car owners and transportation planning.</p>
+                    {% else %}
+                    <p>Specialized calculators for {{ category|lower }} calculations and planning.</p>
+                    {% endif %}
+                </div>
+                
                 <div class="calculator-list">
                     {% for calc in calcs %}
                     <div class="calc-item">
                         <h4>{{ calc.name }}</h4>
-                        <p>{{ calc.description }}</p>
-                        <ul class="calc-features">
-                            <li>Instant accurate results</li>
-                            <li>Easy to use interface</li>
-                            <li>Mobile friendly design</li>
-                        </ul>
+                        <p>{{ calc.content.description }}</p>
+                        
+                        <div class="calc-details">
+                            <h5>Key Features:</h5>
+                            <ul class="calc-features">
+                                <li>{{ calc.content.formula|truncate(60) }}</li>
+                                <li>Perfect for: {{ calc.content.use_cases[:2]|join(', ') }}</li>
+                                <li>Instant accurate results</li>
+                                <li>Mobile friendly design</li>
+                            </ul>
+                            
+                            {% if calc.content.examples %}
+                            <div class="calc-example">
+                                <strong>Example:</strong> {{ calc.content.examples[0] }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
                         <a href="/calculator/{{ calc.slug }}" class="use-calc-btn">Use Calculator →</a>
                     </div>
                     {% endfor %}
@@ -310,5 +494,61 @@
             </p>
         </div>
     </footer>
+
+    <script>
+        // Blog search functionality
+        document.getElementById('blogSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const categorySection = document.querySelectorAll('.category-section');
+            let totalVisible = 0;
+            
+            categorySection.forEach(section => {
+                const calcItems = section.querySelectorAll('.calc-item');
+                let sectionVisible = 0;
+                
+                calcItems.forEach(item => {
+                    const name = item.querySelector('h4').textContent.toLowerCase();
+                    const description = item.querySelector('p').textContent.toLowerCase();
+                    const features = item.querySelector('.calc-features').textContent.toLowerCase();
+                    
+                    const isVisible = name.includes(searchTerm) || 
+                                    description.includes(searchTerm) || 
+                                    features.includes(searchTerm);
+                    
+                    if (isVisible) {
+                        item.style.display = 'block';
+                        sectionVisible++;
+                        totalVisible++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Hide/show entire category section if no items visible
+                if (sectionVisible > 0) {
+                    section.style.display = 'block';
+                    // Update category count
+                    const countSpan = section.querySelector('.category-count');
+                    countSpan.textContent = `${sectionVisible} Calculator${sectionVisible !== 1 ? 's' : ''}`;
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            
+            // Update search stats
+            const searchStats = document.getElementById('searchStats');
+            if (searchTerm) {
+                searchStats.textContent = `Found ${totalVisible} calculator${totalVisible !== 1 ? 's' : ''} matching "${searchTerm}"`;
+            } else {
+                searchStats.textContent = `Showing all {{ calculators|length }} calculators`;
+                // Reset category counts
+                categorySection.forEach(section => {
+                    const calcItems = section.querySelectorAll('.calc-item');
+                    const countSpan = section.querySelector('.category-count');
+                    countSpan.textContent = `${calcItems.length} Calculator${calcItems.length !== 1 ? 's' : ''}`;
+                });
+            }
+        });
+    </script>
 </body>
 </html>
