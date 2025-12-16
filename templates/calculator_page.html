@@ -7,6 +7,7 @@
 crossorigin="anonymous"></script>
     <title>{{ calculator.name }} - Free Online Calculator | CalcMaster Pro</title>
     <meta name="description" content="{{ calculator.description }}. Free online {{ calculator.name|lower }} tool. Calculate instantly with accurate results.">
+    <link rel="canonical" href="https://clackmasterpro.online/calculator/{{ calculator.slug or calculator.id }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body {
@@ -162,6 +163,63 @@ crossorigin="anonymous"></script>
             background: #5a6fd8;
             transform: translateY(-2px);
         }
+        .content-section {
+            margin: 30px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        .content-section h2 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        .content-section h3 {
+            color: #333;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .content-section p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .content-section ol, .content-section ul {
+            padding-left: 25px;
+            color: #555;
+        }
+        .content-section li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .faq-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        .faq-section h2 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .faq-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .faq-item h3 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+        }
+        .faq-item p {
+            margin: 0;
+            color: #666;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -174,12 +232,103 @@ crossorigin="anonymous"></script>
             <p class="description">{{ calculator.description }}</p>
         </div>
 
+        <!-- Enhanced Content Section -->
+        <div class="content-section">
+            <div class="about-calculator">
+                <h2>About {{ calculator.name }}</h2>
+                <div class="calc-info">
+                    <p>{{ content.description }}</p>
+                    
+                    <h3>How to Use:</h3>
+                    <ol>
+                        {% for step in content.usage %}
+                        <li>{{ step }}</li>
+                        {% endfor %}
+                    </ol>
+                    
+                    <h3>Formula Used:</h3>
+                    <p>{{ content.formula }}</p>
+                    
+                    {% if content.categories %}
+                    <h3>Categories:</h3>
+                    <ul>
+                        {% for category, description in content.categories.items() %}
+                        <li><strong>{{ category }}:</strong> {{ description }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    
+                    {% if content.examples %}
+                    <h3>Examples:</h3>
+                    <ul>
+                        {% for example in content.examples %}
+                        <li>{{ example }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    
+                    <h3>Common Use Cases:</h3>
+                    <ul>
+                        {% for use_case in content.use_cases %}
+                        <li>{{ use_case }}</li>
+                        {% endfor %}
+                    </ul>
+                    
+                    {% if content.key_features %}
+                    <h3>Key Features:</h3>
+                    <ul>
+                        {% for feature in content.key_features %}
+                        <li>✓ {{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <div class="calculator-form">
+            <h2>{{ calculator.name }} Tool</h2>
             <form id="calcForm">
                 <div id="formFields"></div>
-                <button type="submit" class="calculate-btn">Calculate</button>
+                <button type="submit" class="calculate-btn">Calculate Now</button>
             </form>
             <div id="result" class="result"></div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3>Is this {{ calculator.name }} free to use?</h3>
+                <p>Yes, our {{ calculator.name }} is completely free to use. No registration, payment, or subscription required.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How accurate are the {{ calculator.name|lower }} calculations?</h3>
+                <p>Our calculator uses precise mathematical formulas and algorithms to ensure accurate results for all your {{ calculator.category|lower }} calculations. The formula used is: {{ content.formula|truncate(100) }}</p>
+            </div>
+            <div class="faq-item">
+                <h3>What can I use this {{ calculator.name|lower }} for?</h3>
+                <p>This calculator is perfect for: {{ content.use_cases|join(', ') }}. It's designed for both personal and professional use.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Can I use this on mobile devices?</h3>
+                <p>Yes, our {{ calculator.name }} is fully responsive and works perfectly on smartphones, tablets, and desktop computers. The interface adapts to your screen size for optimal usability.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Do you store my calculation data?</h3>
+                <p>No, we don't store any of your input data or calculation results. All calculations are performed locally in your browser for complete privacy and security.</p>
+            </div>
+            {% if calculator.category == 'Health' %}
+            <div class="faq-item">
+                <h3>Should I consult a doctor about these results?</h3>
+                <p>This calculator provides estimates for informational purposes only. For medical advice, diagnosis, or treatment, always consult with qualified healthcare professionals.</p>
+            </div>
+            {% elif calculator.category == 'Finance' %}
+            <div class="faq-item">
+                <h3>Should I use these results for financial decisions?</h3>
+                <p>This calculator provides estimates to help with planning. For important financial decisions, consider consulting with a qualified financial advisor or professional.</p>
+            </div>
+            {% endif %}
         </div>
 
         <div class="related-calculators">
