@@ -14,6 +14,7 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-9776516979726925" crossorigin="anonymous"></script>
     <meta name="description" content="Explore our comprehensive collection of online calculators. Learn about features, use cases, and tips for age, BMI, finance, math, physics calculators and more."/>
     <meta name="google-site-verification" content="brUO8tXM0Vf6t8h3RImXNg9V1_J05jHR6edkHKickc0" />
+    <link rel="canonical" href="https://clackmasterpro.online/guides">
     <title>Calculator Guides & Tools | CalcMaster Pro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -336,8 +337,8 @@
                 </nav>
             </div>
             <div class="blog-hero">
-                <h2>📚 Calculator Features & Guides</h2>
-                <p>Discover all our calculators, their features, and how to use them effectively</p>
+                <h2>📚 Calculator Guides & Tools</h2>
+                <p>Comprehensive guides for our professional calculation tools</p>
             </div>
         </header>
 
@@ -417,10 +418,15 @@
                         <div class="calc-details">
                             <h5>Key Features:</h5>
                             <ul class="calc-features">
-                                <li>{{ calc.content.formula|truncate(60) }}</li>
-                                <li>Perfect for: {{ calc.content.use_cases[:2]|join(', ') }}</li>
-                                <li>Instant accurate results</li>
-                                <li>Mobile friendly design</li>
+                                {% if calc.content.key_features %}
+                                    {% for feature in calc.content.key_features[:3] %}
+                                    <li>{{ feature }}</li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li>{{ calc.content.formula|truncate(60) }}</li>
+                                    <li>Perfect for: {{ calc.content.use_cases[:2]|join(', ') }}</li>
+                                    <li>Instant accurate results</li>
+                                {% endif %}
                             </ul>
                             
                             {% if calc.content.examples %}
