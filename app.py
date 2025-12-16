@@ -1523,7 +1523,7 @@ def sitemap():
 
     # Add calculator URLs only for those with comprehensive content
     for calc in CALCULATORS:
-        slug = calc.get("id") or calc.get("slug")
+        slug = calc.get("slug") or calc.get("id")
         content = get_calculator_content(calc['id'])
         if slug and content:  # Only include calculators with specific content
             pages.append({
