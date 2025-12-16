@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://age-calc-3lf5.vercel.app/sitemap.xml
+Sitemap: https://clackmasterpro.online/sitemap.xml
