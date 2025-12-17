@@ -1,18 +1,1 @@
-{
-  "version": 2,
-
-  "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
-  ],
-
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "destination": "https://clackmasterpro.online/$1",
-      "permanent": true
-    }
-  ]
-}
+{ "version": 2, "builds": [ { "src": "app.py", "use": "@vercel/python" } ], "routes": [ { "src": "/sitemap.xml", "dest": "/app.py", "headers": { "Content-Type": "application/xml" } }, { "src": "/(.*)", "dest": "/app.py" } ] }
