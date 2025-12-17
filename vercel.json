@@ -6,11 +6,7 @@
   "routes": [
     { "src": "/robots.txt", "dest": "/robots.txt" },
     { "src": "/ads.txt", "dest": "/ads.txt" },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/app.py",
-      "headers": { "Content-Type": "application/xml" }
-    },
+    { "src": "/sitemap.xml", "dest": "/app.py" },
     { "src": "/(.*)", "dest": "/app.py" }
   ]
 }
