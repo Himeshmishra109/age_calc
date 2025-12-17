@@ -363,11 +363,11 @@ header p {
     display: inline-block;
 }
 
-/*.footer-links a:hover,
+.footer-links a:hover,
 .footer-links-list a:hover {
     color: #667eea;
     transform: translateX(5px);
-}*/
+}
 
 .social-links {
     margin-top: 15px;
