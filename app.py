@@ -1553,10 +1553,10 @@ def sitemap():
 def robots():
     return send_from_directory(app.root_path, 'robots.txt', mimetype='text/plain')
 
-# @app.route('/ads.txt')
-# def ads():
-#     return send_from_directory(app.root_path, 'ads.txt', mimetype='text/plain')
-# Temporarily disabled until AdSense approval
+@app.route('/ads.txt')
+def ads():
+    return send_from_directory(app.root_path, 'ads.txt', mimetype='text/plain')
+    Temporarily disabled until AdSense approval
 
 def get_float_value(data, key, default=None, required=True):
     """Helper function to safely get and validate float values"""
